@@ -72,10 +72,6 @@ public class RegularZDD extends ValueType implements ZDD {
         return Optional.empty();
     }
 
-    public static ZDD withVariable(ZDDVariable zddVariable) {
-        return new RegularZDD(zddVariable, ONE_ZDD, ZERO_ZDD);
-    }
-
     public static ZDD withVariables(ZDDVariable... zddVariables) {
         Arrays.sort(zddVariables, Comparator.reverseOrder());
         ZDD zdd = ONE_ZDD;
@@ -83,9 +79,5 @@ public class RegularZDD extends ValueType implements ZDD {
             zdd = new RegularZDD(zddVariable, zdd, ZERO_ZDD);
         }
         return zdd;
-    }
-
-    public static ZDD withoutVariable(ZDDVariable zddVariable) {
-        return new RegularZDD(zddVariable, ZERO_ZDD, ONE_ZDD);
     }
 }

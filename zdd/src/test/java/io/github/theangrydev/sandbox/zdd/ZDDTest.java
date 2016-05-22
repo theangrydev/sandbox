@@ -26,7 +26,7 @@ public class ZDDTest implements WithAssertions {
     @Test
     public void withOneVariableContainsThatVariable() {
         ZDDVariable zddVariable = ZDDVariable.newVariable(0);
-        ZDD zdd = RegularZDD.withVariable(zddVariable);
+        ZDD zdd = RegularZDD.withVariables(zddVariable);
 
         assertThat(zdd.directAssignment()).contains(zddVariable);
     }
@@ -50,7 +50,7 @@ public class ZDDTest implements WithAssertions {
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
         ZDDVariable variable3 = ZDDVariable.newVariable(2);
 
-        ZDD union = RegularZDD.withVariable(variable1).union(RegularZDD.withVariable(variable2)).union(RegularZDD.withVariable(variable3));
+        ZDD union = RegularZDD.withVariables(variable1).union(RegularZDD.withVariables(variable2)).union(RegularZDD.withVariables(variable3));
 
         assertThat(union.contains(variable1)).isTrue();
         assertThat(union.contains(variable2)).isTrue();
@@ -63,8 +63,8 @@ public class ZDDTest implements WithAssertions {
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
         ZDDVariable variable3 = ZDDVariable.newVariable(2);
 
-        ZDD oneAndTwo = RegularZDD.withVariable(variable1).union(RegularZDD.withVariable(variable2));
-        ZDD twoAndThree = RegularZDD.withVariable(variable2).union(RegularZDD.withVariable(variable3));
+        ZDD oneAndTwo = RegularZDD.withVariables(variable1).union(RegularZDD.withVariables(variable2));
+        ZDD twoAndThree = RegularZDD.withVariables(variable2).union(RegularZDD.withVariables(variable3));
 
         ZDD intersection = oneAndTwo.intersection(twoAndThree);
 
