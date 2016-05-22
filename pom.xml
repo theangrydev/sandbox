@@ -6,11 +6,15 @@
 
     <groupId>io.github.theangrydev</groupId>
     <artifactId>sandbox</artifactId>
+    <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
 
     <prerequisites>
         <maven>3.0.4</maven>
     </prerequisites>
+    <modules>
+        <module>zdd</module>
+    </modules>
 
     <repositories>
         <repository>
