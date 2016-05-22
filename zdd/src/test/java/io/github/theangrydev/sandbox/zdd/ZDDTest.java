@@ -52,6 +52,9 @@ public class ZDDTest implements WithAssertions {
 
         ZDD union = RegularZDD.withVariables(variable1).union(RegularZDD.withVariables(variable2)).union(RegularZDD.withVariables(variable3));
 
+        assertThat(union.contains(RegularZDD.withVariables(variable1))).isTrue();
+        assertThat(union.contains(RegularZDD.withVariables(variable2))).isTrue();
+        assertThat(union.contains(RegularZDD.withVariables(variable3))).isTrue();
         assertThat(union.contains(variable1)).isTrue();
         assertThat(union.contains(variable2)).isTrue();
         assertThat(union.contains(variable3)).isTrue();
@@ -68,8 +71,35 @@ public class ZDDTest implements WithAssertions {
 
         ZDD intersection = oneAndTwo.intersection(twoAndThree);
 
+        assertThat(intersection.contains(RegularZDD.withVariables(variable2))).isTrue();
         assertThat(intersection.contains(variable1)).isFalse();
         assertThat(intersection.contains(variable2)).isTrue();
         assertThat(intersection.contains(variable3)).isFalse();
     }
+
+    //TODO: think about ( ( (F |_| A_ALL) |-| T) |-| F_ALL ) \ F_ALL)
+    // where:
+    // F = frontier
+    // A = after
+    // T = transition
+    // A_ALL = all afters
+    // F_ALL = all frontiers
+
+//    @Test
+//    public void relativeProduct() {
+//        ZDDVariable from1 = ZDDVariable.newVariable(0);
+//        ZDDVariable from2 = ZDDVariable.newVariable(1);
+//        ZDDVariable to = ZDDVariable.newVariable(2);
+//        ZDDVariable character = ZDDVariable.newVariable(3);
+//
+//        ZDD frontier = RegularZDD.withVariables(from1, from2, character);
+//        ZDD transitions = RegularZDD.withVariables(from2, character, to);
+//        ZDD fromAndChar = RegularZDD.withVariables(from1, from2, character);
+//
+//        ZDD relativeProduct = frontier.relativeProduct(transitions, fromAndChar);
+//
+//        assertThat(relativeProduct.contains(from1)).isFalse();
+//        assertThat(relativeProduct.contains(from2)).isFalse();
+//        assertThat(relativeProduct.contains(to)).isTrue();
+//    }
 }

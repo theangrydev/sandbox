@@ -65,11 +65,53 @@ public class RegularZDD extends ValueType implements ZDD {
     }
 
     @Override
+    public boolean contains(ZDD zdd) {
+        return zdd.isContainedBy(this);
+    }
+
+    @Override
+    public boolean isContainedBy(RegularZDD other) {
+        return other.contains(this);
+    }
+
+    @Override
+    public boolean contains(RegularZDD other) {
+        int comparison = variable.compareTo(other.variable);
+        if (comparison == 0) {
+            // this isContainedBy other.variable; check it isContainedBy the rest too
+            return thenZdd.contains(other.thenZdd) && elseZdd.contains(other.elseZdd); // ensure the other variables match
+        } else {
+            // if the top of this is greater than the top of other then this cannot contain other
+            // otherwise, the then or else branches must contain other
+            return comparison < 0 && (thenZdd.contains(other) || elseZdd.contains(other));
+        }
+    }
+
+    @Override
     public Optional<ZDDVariable> directAssignment() {
         if (thenZdd == ONE_ZDD && elseZdd == ZERO_ZDD) {
             return Optional.of(variable);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public ZDD relativeProduct(ZDD transitions, ZDD exists) {
+        return exists.relativeProduct(this, exists);
+    }
+
+    @Override
+    public ZDD relativeProduct(RegularZDD transitions, ZDD exists) {
+        int comparison = variable.compareTo(transitions.variable);
+        if (comparison == 0) {
+            ZDD thenIntersection = thenZdd.intersection(transitions.thenZdd);
+            ZDD elseIntersection = elseZdd.intersection(transitions.elseZdd);
+            return new RegularZDD(variable, thenIntersection, elseIntersection);
+        } else if (comparison < 0) {
+            return elseZdd.intersection(transitions); // transitions does not contain this.variable so we chop of the this.then branch
+        } else { // comparison > 0
+            return intersection(transitions.elseZdd); // this does not contain transitions.variable so we chop of the transitions.then branch
+        }
     }
 
     public static ZDD withVariables(ZDDVariable... zddVariables) {
