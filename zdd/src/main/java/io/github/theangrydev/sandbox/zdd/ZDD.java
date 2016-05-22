@@ -4,6 +4,8 @@ import java.util.Optional;
 
 public interface ZDD {
     ZDD union(ZDD zdd);
+    ZDD boxUnion(ZDD zdd);
+    ZDD boxUnion(RegularZDD zdd);
     ZDD union(RegularZDD zdd);
     ZDD intersection(ZDD zdd);
     ZDD intersection(RegularZDD zdd);

@@ -4,6 +4,7 @@ import org.assertj.core.api.WithAssertions;
 import org.junit.Test;
 
 import static io.github.theangrydev.sandbox.zdd.OneZDD.ONE_ZDD;
+import static io.github.theangrydev.sandbox.zdd.RegularZDD.setOf;
 import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
 
 public class ZDDTest implements WithAssertions {
@@ -26,7 +27,7 @@ public class ZDDTest implements WithAssertions {
     @Test
     public void withOneVariableContainsThatVariable() {
         ZDDVariable zddVariable = ZDDVariable.newVariable(0);
-        ZDD zdd = RegularZDD.withVariables(zddVariable);
+        ZDD zdd = setOf(zddVariable);
 
         assertThat(zdd.directAssignment()).contains(zddVariable);
     }
@@ -36,9 +37,9 @@ public class ZDDTest implements WithAssertions {
         ZDDVariable zddVariable1 = ZDDVariable.newVariable(0);
         ZDDVariable zddVariable2 = ZDDVariable.newVariable(1);
         ZDDVariable zddVariable3 = ZDDVariable.newVariable(2);
-        ZDD zdd = RegularZDD.withVariables(zddVariable1, zddVariable2, zddVariable3);
+        ZDD zdd = setOf(zddVariable1, zddVariable2, zddVariable3);
 
-        assertThat(zdd.contains(RegularZDD.withVariables(zddVariable1, zddVariable2, zddVariable3))).isTrue();
+        assertThat(zdd.contains(setOf(zddVariable1, zddVariable2, zddVariable3))).isTrue();
     }
 
     @Test
@@ -47,11 +48,21 @@ public class ZDDTest implements WithAssertions {
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
         ZDDVariable variable3 = ZDDVariable.newVariable(2);
 
-        ZDD union = RegularZDD.withVariables(variable1).union(RegularZDD.withVariables(variable2)).union(RegularZDD.withVariables(variable3));
+        ZDD union = setOf(variable1).union(setOf(variable2)).union(setOf(variable3));
 
-        assertThat(union.contains(RegularZDD.withVariables(variable1))).isTrue();
-        assertThat(union.contains(RegularZDD.withVariables(variable2))).isTrue();
-        assertThat(union.contains(RegularZDD.withVariables(variable3))).isTrue();
+        assertThat(union.contains(setOf(variable1))).isTrue();
+        assertThat(union.contains(setOf(variable2))).isTrue();
+        assertThat(union.contains(setOf(variable3))).isTrue();
+    }
+
+    @Test
+    public void boxUnion() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(0);
+        ZDDVariable variable2 = ZDDVariable.newVariable(1);
+
+        ZDD union = setOf(variable1).boxUnion(setOf(variable2));
+
+        assertThat(union.contains(setOf(variable1, variable2))).isTrue();
     }
 
     @Test
@@ -60,14 +71,14 @@ public class ZDDTest implements WithAssertions {
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
         ZDDVariable variable3 = ZDDVariable.newVariable(2);
 
-        ZDD oneAndTwo = RegularZDD.withVariables(variable1).union(RegularZDD.withVariables(variable2));
-        ZDD twoAndThree = RegularZDD.withVariables(variable2).union(RegularZDD.withVariables(variable3));
+        ZDD oneAndTwo = setOf(variable1).union(setOf(variable2));
+        ZDD twoAndThree = setOf(variable2).union(setOf(variable3));
 
         ZDD intersection = oneAndTwo.intersection(twoAndThree);
 
-        assertThat(intersection.contains(RegularZDD.withVariables(variable1))).isFalse();
-        assertThat(intersection.contains(RegularZDD.withVariables(variable2))).isTrue();
-        assertThat(intersection.contains(RegularZDD.withVariables(variable3))).isFalse();
+        assertThat(intersection.contains(setOf(variable1))).isFalse();
+        assertThat(intersection.contains(setOf(variable2))).isTrue();
+        assertThat(intersection.contains(setOf(variable3))).isFalse();
     }
 
     //TODO: think about ( ( (F |_| A_ALL) |-| T) |-| F_ALL ) \ F_ALL)
@@ -85,9 +96,9 @@ public class ZDDTest implements WithAssertions {
 //        ZDDVariable to = ZDDVariable.newVariable(2);
 //        ZDDVariable character = ZDDVariable.newVariable(3);
 //
-//        ZDD frontier = RegularZDD.withVariables(from1, from2, character);
-//        ZDD transitions = RegularZDD.withVariables(from2, character, to);
-//        ZDD fromAndChar = RegularZDD.withVariables(from1, from2, character);
+//        ZDD frontier = RegularZDD.setOf(from1, from2, character);
+//        ZDD transitions = RegularZDD.setOf(from2, character, to);
+//        ZDD fromAndChar = RegularZDD.setOf(from1, from2, character);
 //
 //        ZDD relativeProduct = frontier.relativeProduct(transitions, fromAndChar);
 //

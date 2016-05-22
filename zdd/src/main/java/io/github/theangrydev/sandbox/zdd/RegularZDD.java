@@ -19,9 +19,52 @@ public class RegularZDD extends ValueType implements ZDD {
         this.elseZdd = elseZdd;
     }
 
+    private static ZDD createZDD(ZDDVariable variable, ZDD thenZdd, ZDD elseZdd) {
+        if (thenZdd == ZERO_ZDD) {
+            return elseZdd;
+        } else {
+            return new RegularZDD(variable, thenZdd, elseZdd);
+        }
+    }
+
+    public static ZDD setOf(ZDDVariable... zddVariables) {
+        Arrays.sort(zddVariables, Comparator.reverseOrder());
+        ZDD zdd = ONE_ZDD;
+        for (ZDDVariable zddVariable : zddVariables) {
+            zdd = createZDD(zddVariable, zdd, ZERO_ZDD);
+        }
+        return zdd;
+    }
+
     @Override
     public ZDD union(ZDD zdd) {
         return zdd.union(this);
+    }
+
+    @Override
+    public ZDD boxUnion(ZDD zdd) {
+        return zdd.boxUnion(this);
+    }
+
+    //TODO: page 38 of bdd15.pdf
+    @Override
+    public ZDD boxUnion(RegularZDD other) {
+        //TODO: implement
+        int comparison = variable.compareTo(other.variable);
+        if (comparison == 0) { // both contain the variable to we need to union each side
+            ZDD otherUnion = other.elseZdd.union(other.thenZdd);
+            ZDD nextUnion = thenZdd.boxUnion(otherUnion);
+            ZDD next2Union = elseZdd.boxUnion(other.thenZdd);
+            ZDD nextThen = nextUnion.union(next2Union);
+            ZDD nextElse = elseZdd.boxUnion(other.elseZdd);
+            return createZDD(variable, nextThen, nextElse);
+            //TODO: page 38 of bdd15.pdf
+        } else {
+            ZDD nextThen = elseZdd.boxUnion(other);
+            ZDD nextElse = thenZdd.boxUnion(other);
+            //TODO: page 38 of bdd15.pdf
+            return createZDD(variable, nextThen, nextElse); // this does not contain other.variable so we only need to union the else side
+        }
     }
 
     @Override
@@ -30,11 +73,11 @@ public class RegularZDD extends ValueType implements ZDD {
         if (comparison == 0) { // both contain the variable to we need to union each side
             ZDD thenUnion = thenZdd.union(other.thenZdd);
             ZDD elseUnion = elseZdd.union(other.elseZdd);
-            return new RegularZDD(variable, thenUnion, elseUnion);
+            return createZDD(variable, thenUnion, elseUnion);
         } else if (comparison < 0) {
-            return new RegularZDD(variable, thenZdd, elseZdd.union(other)); // other does not contain this.variable so we only need to union the else side
+            return createZDD(variable, thenZdd, elseZdd.union(other)); // other does not contain this.variable so we only need to union the else side
         } else { // comparison > 0
-            return new RegularZDD(other.variable, other.thenZdd, union(other.elseZdd)); // this does not contain other.variable so we only need to union the else side
+            return createZDD(other.variable, other.thenZdd, union(other.elseZdd)); // this does not contain other.variable so we only need to union the else side
         }
     }
 
@@ -49,7 +92,7 @@ public class RegularZDD extends ValueType implements ZDD {
         if (comparison == 0) {
             ZDD thenIntersection = thenZdd.intersection(other.thenZdd);
             ZDD elseIntersection = elseZdd.intersection(other.elseZdd);
-            return new RegularZDD(variable, thenIntersection, elseIntersection);
+            return createZDD(variable, thenIntersection, elseIntersection);
         } else if (comparison < 0) {
             return elseZdd.intersection(other); // other does not contain this.variable so we chop of the this.then branch
         } else { // comparison > 0
@@ -99,20 +142,11 @@ public class RegularZDD extends ValueType implements ZDD {
         if (comparison == 0) {
             ZDD thenIntersection = thenZdd.intersection(transitions.thenZdd);
             ZDD elseIntersection = elseZdd.intersection(transitions.elseZdd);
-            return new RegularZDD(variable, thenIntersection, elseIntersection);
+            return createZDD(variable, thenIntersection, elseIntersection);
         } else if (comparison < 0) {
             return elseZdd.intersection(transitions); // transitions does not contain this.variable so we chop of the this.then branch
         } else { // comparison > 0
             return intersection(transitions.elseZdd); // this does not contain transitions.variable so we chop of the transitions.then branch
         }
-    }
-
-    public static ZDD withVariables(ZDDVariable... zddVariables) {
-        Arrays.sort(zddVariables, Comparator.reverseOrder());
-        ZDD zdd = ONE_ZDD;
-        for (ZDDVariable zddVariable : zddVariables) {
-            zdd = new RegularZDD(zddVariable, zdd, ZERO_ZDD);
-        }
-        return zdd;
     }
 }
