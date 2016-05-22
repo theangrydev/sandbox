@@ -26,12 +26,32 @@ public class ZeroZDD extends ValueType implements ZDD {
     }
 
     @Override
-    public boolean contains(ZDDVariable zddVariable) {
+    public boolean contains(ZDD zdd) {
+        return zdd == this;
+    }
+
+    @Override
+    public boolean contains(RegularZDD zdd) {
         return false;
+    }
+
+    @Override
+    public boolean isContainedBy(RegularZDD zdd) {
+        return true;
     }
 
     @Override
     public Optional<ZDDVariable> directAssignment() {
         return Optional.empty();
+    }
+
+    @Override
+    public ZDD relativeProduct(ZDD transitions, ZDD exists) {
+        return this;
+    }
+
+    @Override
+    public ZDD relativeProduct(RegularZDD transitions, ZDD exists) {
+        return this;
     }
 }

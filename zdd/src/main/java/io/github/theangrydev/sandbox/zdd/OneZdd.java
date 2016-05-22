@@ -30,12 +30,33 @@ public class OneZDD extends ValueType implements ZDD {
     }
 
     @Override
-    public boolean contains(ZDDVariable zddVariable) {
+    public boolean contains(ZDD zdd) {
         return true;
+    }
+
+    @Override
+    public boolean contains(RegularZDD zdd) {
+        return true;
+    }
+
+    @Override
+    public boolean isContainedBy(RegularZDD zdd) {
+        return false;
     }
 
     @Override
     public Optional<ZDDVariable> directAssignment() {
         return Optional.empty();
+    }
+
+    @Override
+    public ZDD relativeProduct(ZDD transitions, ZDD exists) {
+        //TODO: i think this should be transitions subtract exists
+        return transitions;
+    }
+
+    @Override
+    public ZDD relativeProduct(RegularZDD transitions, ZDD exists) {
+        return transitions;
     }
 }

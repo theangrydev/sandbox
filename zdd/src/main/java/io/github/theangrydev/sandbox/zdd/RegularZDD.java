@@ -58,13 +58,6 @@ public class RegularZDD extends ValueType implements ZDD {
     }
 
     @Override
-    public boolean contains(ZDDVariable zddVariable) {
-        return this.variable == zddVariable
-                || thenZdd != ONE_ZDD && thenZdd.contains(zddVariable)
-                || elseZdd != ZERO_ZDD && elseZdd.contains(zddVariable);
-    }
-
-    @Override
     public boolean contains(ZDD zdd) {
         return zdd.isContainedBy(this);
     }

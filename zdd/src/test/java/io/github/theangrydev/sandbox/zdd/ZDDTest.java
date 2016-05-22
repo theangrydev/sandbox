@@ -20,7 +20,7 @@ public class ZDDTest implements WithAssertions {
 
     @Test
     public void oneHasNoDirectAssignment() {
-        assertThat(ONE_ZDD.contains(ZDDVariable.newVariable(1))).isTrue();
+        assertThat(ONE_ZDD.directAssignment()).isEmpty();
     }
 
     @Test
@@ -38,10 +38,7 @@ public class ZDDTest implements WithAssertions {
         ZDDVariable zddVariable3 = ZDDVariable.newVariable(2);
         ZDD zdd = RegularZDD.withVariables(zddVariable1, zddVariable2, zddVariable3);
 
-        assertThat(zdd.contains(zddVariable1)).isTrue();
-        assertThat(zdd.contains(zddVariable2)).isTrue();
-        assertThat(zdd.contains(zddVariable3)).isTrue();
-        assertThat(zdd.contains(ZDDVariable.newVariable(3))).isFalse();
+        assertThat(zdd.contains(RegularZDD.withVariables(zddVariable1, zddVariable2, zddVariable3))).isTrue();
     }
 
     @Test
@@ -55,9 +52,6 @@ public class ZDDTest implements WithAssertions {
         assertThat(union.contains(RegularZDD.withVariables(variable1))).isTrue();
         assertThat(union.contains(RegularZDD.withVariables(variable2))).isTrue();
         assertThat(union.contains(RegularZDD.withVariables(variable3))).isTrue();
-        assertThat(union.contains(variable1)).isTrue();
-        assertThat(union.contains(variable2)).isTrue();
-        assertThat(union.contains(variable3)).isTrue();
     }
 
     @Test
@@ -71,10 +65,9 @@ public class ZDDTest implements WithAssertions {
 
         ZDD intersection = oneAndTwo.intersection(twoAndThree);
 
+        assertThat(intersection.contains(RegularZDD.withVariables(variable1))).isFalse();
         assertThat(intersection.contains(RegularZDD.withVariables(variable2))).isTrue();
-        assertThat(intersection.contains(variable1)).isFalse();
-        assertThat(intersection.contains(variable2)).isTrue();
-        assertThat(intersection.contains(variable3)).isFalse();
+        assertThat(intersection.contains(RegularZDD.withVariables(variable3))).isFalse();
     }
 
     //TODO: think about ( ( (F |_| A_ALL) |-| T) |-| F_ALL ) \ F_ALL)
