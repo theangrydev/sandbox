@@ -53,10 +53,10 @@ public class RegularZDD extends ValueType implements ZDD {
 
     @Override
     public ZDD union(ZDD other) {
-        if (other.isZero()) {
+        if (other == ZERO_ZDD) {
             return this;
         }
-        if (other.isOne()) {
+        if (other == ONE_ZDD) {
             return createZDD(variable, ONE_ZDD, ONE_ZDD);
         }
         int comparison = variable.compareTo(other.variable());
@@ -73,10 +73,10 @@ public class RegularZDD extends ValueType implements ZDD {
 
     @Override
     public ZDD intersection(ZDD other) {
-        if (other.isZero()) {
+        if (other == ZERO_ZDD) {
             return ZERO_ZDD;
         }
-        if (other.isOne()) {
+        if (other == ONE_ZDD) {
             return this;
         }
         int comparison = variable.compareTo(other.variable());
@@ -93,10 +93,10 @@ public class RegularZDD extends ValueType implements ZDD {
 
     @Override
     public ZDD filter(ZDD other) {
-        if (other.isZero()) {
+        if (other == ZERO_ZDD) {
             return ZERO_ZDD;
         }
-        if (other.isOne()) {
+        if (other == ONE_ZDD) {
             return this;
         }
         int comparison = variable.compareTo(other.variable());
@@ -115,10 +115,10 @@ public class RegularZDD extends ValueType implements ZDD {
 
     @Override
     public boolean contains(ZDD other) {
-        if (other.isOne()) {
+        if (other == ONE_ZDD) {
             return elseZdd == ONE_ZDD;
         }
-        if (other.isZero()) {
+        if (other == ZERO_ZDD) {
             return true;
         }
         int comparison = variable.compareTo(other.variable());
