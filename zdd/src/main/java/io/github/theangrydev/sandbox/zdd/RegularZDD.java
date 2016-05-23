@@ -114,6 +114,24 @@ public class RegularZDD extends ValueType implements ZDD {
     }
 
     @Override
+    public ZDD remove(ZDD other) {
+        if (other == ZERO_ZDD) {
+            return this;
+        }
+        if (other == ONE_ZDD) {
+            return ZERO_ZDD;
+        }
+        int comparison = variable.compareTo(other.variable());
+        if (comparison == 0) {
+            return thenZdd.remove(other).union(elseZdd.remove(other));
+        } else if (comparison < 0) {
+            return createZDD(variable, thenZdd.remove(other), elseZdd.remove(other)); // other does not contain this.variable so we just remove from the remainder
+        } else { // comparison > 0
+            return remove(other.thenZDD()).union(remove(other.elseZDD())); // this does not contain other.variable so try the sets that don't contain it
+        }
+    }
+
+    @Override
     public boolean contains(ZDD other) {
         if (other == ONE_ZDD) {
             return elseZdd == ONE_ZDD;

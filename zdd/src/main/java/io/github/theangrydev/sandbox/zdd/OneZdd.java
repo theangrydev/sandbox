@@ -40,6 +40,11 @@ public class OneZDD extends ValueType implements ZDD {
     }
 
     @Override
+    public ZDD remove(ZDD zdd) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean contains(ZDD zdd) {
         return true;
     }

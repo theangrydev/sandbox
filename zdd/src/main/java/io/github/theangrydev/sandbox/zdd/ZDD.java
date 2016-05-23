@@ -10,6 +10,7 @@ public interface ZDD {
     ZDD union(ZDD zdd);
     ZDD intersection(ZDD zdd);
     ZDD filter(ZDD zdd);
+    ZDD remove(ZDD zdd);
     boolean contains(ZDD zdd);
     Optional<ZDDVariable> directAssignment();
 }

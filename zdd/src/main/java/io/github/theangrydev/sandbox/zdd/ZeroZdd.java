@@ -36,6 +36,11 @@ public class ZeroZDD extends ValueType implements ZDD {
     }
 
     @Override
+    public ZDD remove(ZDD zdd) {
+        return this;
+    }
+
+    @Override
     public boolean contains(ZDD zdd) {
         return zdd == this;
     }
