@@ -121,7 +121,7 @@ public class ZDDTest implements WithAssertions {
 
         ZDD oneAndTwo = setOf(variable1, variable2);
 
-        ZDD all = setOf(variable1, variable2, variable3).union(setOf(variable1, variable2));//.union(setOf(variable2, variable3));
+        ZDD all = setOf(variable1, variable2, variable3).union(setOf(variable1, variable2)).union(setOf(variable2, variable3));
 
         ZDD filtered = all.filter(oneAndTwo);
 
