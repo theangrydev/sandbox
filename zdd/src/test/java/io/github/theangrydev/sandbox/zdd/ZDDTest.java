@@ -43,7 +43,7 @@ public class ZDDTest implements WithAssertions {
     }
 
     @Test
-    public void union() {
+    public void unionOfSingleSets() {
         ZDDVariable variable1 = ZDDVariable.newVariable(0);
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
         ZDDVariable variable3 = ZDDVariable.newVariable(2);
@@ -53,6 +53,38 @@ public class ZDDTest implements WithAssertions {
         assertThat(union.contains(setOf(variable1))).isTrue();
         assertThat(union.contains(setOf(variable2))).isTrue();
         assertThat(union.contains(setOf(variable3))).isTrue();
+    }
+
+    @Test
+    public void unionThreeByTwo() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(0);
+        ZDDVariable variable2 = ZDDVariable.newVariable(1);
+        ZDDVariable variable3 = ZDDVariable.newVariable(2);
+
+        ZDD union = setOf(variable1, variable2, variable3).union(setOf(variable1, variable2));
+
+        assertThat(union.contains(setOf(variable1, variable2, variable3))).isTrue();
+        assertThat(union.contains(setOf(variable1, variable2))).isTrue();
+    }
+
+    @Test
+    public void unionTwoByOne() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(0);
+        ZDDVariable variable2 = ZDDVariable.newVariable(1);
+
+        ZDD union = setOf(variable1, variable2).union(setOf(variable1));
+
+        assertThat(union.contains(setOf(variable1))).isTrue();
+        assertThat(union.contains(setOf(variable1, variable2))).isTrue();
+    }
+
+    @Test
+    public void unionWithOne() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(0);
+
+        ZDD union = setOf(variable1).union(ONE_ZDD);
+
+        assertThat(union.contains(setOf(variable1))).isTrue();
     }
 
     @Test
@@ -79,6 +111,61 @@ public class ZDDTest implements WithAssertions {
         assertThat(intersection.contains(setOf(variable1))).isFalse();
         assertThat(intersection.contains(setOf(variable2))).isTrue();
         assertThat(intersection.contains(setOf(variable3))).isFalse();
+    }
+
+    @Test
+    public void filter() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(0);
+        ZDDVariable variable2 = ZDDVariable.newVariable(1);
+        ZDDVariable variable3 = ZDDVariable.newVariable(2);
+
+        ZDD oneAndTwo = setOf(variable1, variable2);
+
+        ZDD all = setOf(variable1, variable2, variable3).union(setOf(variable1, variable2));//.union(setOf(variable2, variable3));
+
+        ZDD filtered = all.filter(oneAndTwo);
+
+        assertThat(filtered.contains(setOf(variable1, variable2, variable3))).isTrue();
+        assertThat(filtered.contains(setOf(variable1, variable2))).isTrue();
+        assertThat(filtered.contains(setOf(variable2, variable3))).isFalse();
+    }
+
+    @Test
+    public void containsSingleElement() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(0);
+        ZDDVariable variable2 = ZDDVariable.newVariable(1);
+
+        assertThat(setOf(variable1).contains(setOf(variable1))).isTrue();
+        assertThat(setOf(variable1).contains(setOf(variable2))).isFalse();
+    }
+
+    @Test
+    public void containsSubset() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(0);
+        ZDDVariable variable2 = ZDDVariable.newVariable(1);
+        ZDDVariable variable3 = ZDDVariable.newVariable(2);
+
+        ZDD setOfThree = setOf(variable1, variable2, variable3);
+
+        assertThat(setOfThree.contains(setOfThree)).isTrue();
+        assertThat(setOfThree.contains(setOf(variable1, variable2))).isFalse();
+        assertThat(setOfThree.contains(setOf(variable2, variable3))).isFalse();
+        assertThat(setOfThree.contains(setOf(variable1, variable3))).isFalse();
+        assertThat(setOfThree.contains(setOf(variable1))).isFalse();
+        assertThat(setOfThree.contains(setOf(variable2))).isFalse();
+        assertThat(setOfThree.contains(setOf(variable3))).isFalse();
+    }
+
+    @Test
+    public void doesNotContainSubsetForSetThatHasAOneFork() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(0);
+        ZDDVariable variable2 = ZDDVariable.newVariable(1);
+
+        ZDD all = setOf(variable1, variable2).union(setOf(variable1));
+
+        assertThat(all.contains(setOf(variable1, variable2))).isTrue();
+        assertThat(all.contains(setOf(variable1))).isTrue();
+        assertThat(all.contains(setOf(variable2))).isFalse();
     }
 
     //TODO: think about ( ( (F |_| A_ALL) |-| T) |-| F_ALL ) \ F_ALL)

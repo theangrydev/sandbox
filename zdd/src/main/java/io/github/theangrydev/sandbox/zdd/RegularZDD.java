@@ -37,8 +37,38 @@ public class RegularZDD extends ValueType implements ZDD {
     }
 
     @Override
-    public ZDD union(ZDD zdd) {
-        return zdd.union(this);
+    public ZDDVariable variable() {
+        return variable;
+    }
+
+    @Override
+    public ZDD thenZDD() {
+        return thenZdd;
+    }
+
+    @Override
+    public ZDD elseZDD() {
+        return elseZdd;
+    }
+
+    @Override
+    public ZDD union(ZDD other) {
+        if (other.isZero()) {
+            return this;
+        }
+        if (other.isOne()) {
+            return createZDD(variable, ONE_ZDD, ONE_ZDD);
+        }
+        int comparison = variable.compareTo(other.variable());
+        if (comparison == 0) { // both contain the variable to we need to union each side
+            ZDD thenUnion = thenZdd.union(other.thenZDD());
+            ZDD elseUnion = elseZdd.union(other.elseZDD());
+            return createZDD(variable, thenUnion, elseUnion);
+        } else if (comparison < 0) {
+            return createZDD(variable, thenZdd, elseZdd.union(other)); // other does not contain this.variable so we only need to union the else side
+        } else { // comparison > 0
+            return createZDD(other.variable(), other.thenZDD(), union(other.elseZDD())); // this does not contain other.variable so we only need to union the else side
+        }
     }
 
     @Override
@@ -68,20 +98,6 @@ public class RegularZDD extends ValueType implements ZDD {
     }
 
     @Override
-    public ZDD union(RegularZDD other) {
-        int comparison = variable.compareTo(other.variable);
-        if (comparison == 0) { // both contain the variable to we need to union each side
-            ZDD thenUnion = thenZdd.union(other.thenZdd);
-            ZDD elseUnion = elseZdd.union(other.elseZdd);
-            return createZDD(variable, thenUnion, elseUnion);
-        } else if (comparison < 0) {
-            return createZDD(variable, thenZdd, elseZdd.union(other)); // other does not contain this.variable so we only need to union the else side
-        } else { // comparison > 0
-            return createZDD(other.variable, other.thenZdd, union(other.elseZdd)); // this does not contain other.variable so we only need to union the else side
-        }
-    }
-
-    @Override
     public ZDD intersection(ZDD zdd) {
         return zdd.intersection(this);
     }
@@ -101,25 +117,42 @@ public class RegularZDD extends ValueType implements ZDD {
     }
 
     @Override
-    public boolean contains(ZDD zdd) {
-        return zdd.isContainedBy(this);
+    public ZDD filter(ZDD zdd) {
+        return zdd.filter(this);
     }
 
     @Override
-    public boolean isContainedBy(RegularZDD other) {
-        return other.contains(this);
-    }
-
-    @Override
-    public boolean contains(RegularZDD other) {
+    public ZDD filter(RegularZDD other) {
         int comparison = variable.compareTo(other.variable);
         if (comparison == 0) {
+            ZDD thenFilterThen = thenZdd.filter(other.thenZdd);
+            ZDD thenFilterElse = thenZdd.filter(other.elseZdd);
+            ZDD elseBranch = elseZdd.filter(other.elseZdd);
+            ZDD thenBranch = thenFilterThen.union(thenFilterElse);
+            return createZDD(variable, thenBranch, elseBranch);
+        } else if (comparison < 0) {
+            return createZDD(variable, thenZdd.filter(other), elseZdd.filter(other)); // other does not contain this.variable so we just filter the remainder
+        } else { // comparison > 0
+            return filter(other.elseZdd); // this does not contain other.variable so try the sets that don't contain it
+        }
+    }
+
+    @Override
+    public boolean contains(ZDD other) {
+        if (other.isOne()) {
+            return elseZdd == ONE_ZDD;
+        }
+        if (other.isZero()) {
+            return true;
+        }
+        int comparison = variable.compareTo(other.variable());
+        if (comparison == 0) {
             // this isContainedBy other.variable; check it isContainedBy the rest too
-            return thenZdd.contains(other.thenZdd) && elseZdd.contains(other.elseZdd); // ensure the other variables match
+            return thenZdd.contains(other.thenZDD()) && elseZdd.contains(other.elseZDD()); // ensure the other variables match
         } else {
             // if the top of this is greater than the top of other then this cannot contain other
             // otherwise, the then or else branches must contain other
-            return comparison < 0 && (thenZdd.contains(other) || elseZdd.contains(other));
+            return comparison < 0 && elseZdd.contains(other);
         }
     }
 
