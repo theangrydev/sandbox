@@ -35,12 +35,12 @@ public class OneZDD extends ValueType implements ZDD {
     }
 
     @Override
-    public ZDD retainOverlap(ZDD zdd) {
+    public ZDD retainOverlapping(ZDD zdd) {
         return zdd;
     }
 
     @Override
-    public ZDD removeAll(ZDD zdd) {
+    public ZDD removeAllElementsIn(ZDD zdd) {
         throw new UnsupportedOperationException();
     }
 

@@ -92,7 +92,7 @@ public class RegularZDD extends ValueType implements ZDD {
     }
 
     @Override
-    public ZDD retainOverlap(ZDD other) {
+    public ZDD retainOverlapping(ZDD other) {
         if (other == ZERO_ZDD) {
             return ZERO_ZDD;
         }
@@ -101,15 +101,15 @@ public class RegularZDD extends ValueType implements ZDD {
         }
         int comparison = variable.compareTo(other.variable());
         if (comparison == 0) {
-            ZDD thenFilterThen = thenZdd.retainOverlap(other.thenZDD());
-            ZDD thenFilterElse = thenZdd.retainOverlap(other.elseZDD());
-            ZDD elseBranch = elseZdd.retainOverlap(other.elseZDD());
+            ZDD thenFilterThen = thenZdd.retainOverlapping(other.thenZDD());
+            ZDD thenFilterElse = thenZdd.retainOverlapping(other.elseZDD());
+            ZDD elseBranch = elseZdd.retainOverlapping(other.elseZDD());
             ZDD thenBranch = thenFilterThen.union(thenFilterElse);
             return createZDD(variable, thenBranch, elseBranch);
         } else if (comparison < 0) {
-            return createZDD(variable, thenZdd.retainOverlap(other), elseZdd.retainOverlap(other)); // other does not contain this.variable so we just retainOverlap the remainder
+            return createZDD(variable, thenZdd.retainOverlapping(other), elseZdd.retainOverlapping(other)); // other does not contain this.variable so we just retainOverlapping the remainder
         } else { // comparison > 0
-            return retainOverlap(other.elseZDD()); // this does not contain other.variable so try the sets that don't contain it
+            return retainOverlapping(other.elseZDD()); // this does not contain other.variable so try the sets that don't contain it
         }
     }
 

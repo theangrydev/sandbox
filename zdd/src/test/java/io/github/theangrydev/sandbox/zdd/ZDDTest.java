@@ -104,14 +104,14 @@ public class ZDDTest implements WithAssertions {
     }
 
     @Test
-    public void retainOverlap() {
+    public void retainOverlapping() {
         ZDDVariable variable1 = ZDDVariable.newVariable(0);
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
         ZDDVariable variable3 = ZDDVariable.newVariable(2);
 
         ZDD all = setOf(variable1, variable2, variable3).union(setOf(variable1, variable2)).union(setOf(variable2, variable3));
 
-        ZDD filtered = all.retainOverlap(setOf(variable1, variable2));
+        ZDD filtered = all.retainOverlapping(setOf(variable1, variable2));
 
         assertThat(filtered.contains(setOf(variable1, variable2, variable3))).isTrue();
         assertThat(filtered.contains(setOf(variable1, variable2))).isTrue();
@@ -119,7 +119,7 @@ public class ZDDTest implements WithAssertions {
     }
 
     @Test
-    public void retainOverlapExample() {
+    public void retainOverlappingExample() {
         ZDDVariable from1 = ZDDVariable.newVariable(0);
         ZDDVariable from2 = ZDDVariable.newVariable(1);
         ZDDVariable char1 = ZDDVariable.newVariable(2);
@@ -130,7 +130,7 @@ public class ZDDTest implements WithAssertions {
         ZDD frontier = setOf(from1, char1);
         ZDD transitions = setOf(from1, char1, to1).union(setOf(from2, char2, to2));
 
-        ZDD applicableTransition = transitions.retainOverlap(frontier);
+        ZDD applicableTransition = transitions.retainOverlapping(frontier);
 
         assertThat(applicableTransition.contains(setOf(from1, char1, to1))).isTrue();
         assertThat(applicableTransition.contains(setOf(from2, char2, to2))).isFalse();
