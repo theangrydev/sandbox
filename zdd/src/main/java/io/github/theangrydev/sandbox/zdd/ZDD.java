@@ -10,7 +10,7 @@ public interface ZDD {
     ZDD union(ZDD zdd);
     ZDD intersection(ZDD zdd);
     ZDD retainOverlap(ZDD zdd);
-    ZDD removeAll(ZDD zdd);
+    ZDD removeAllElementsIn(ZDD zdd);
     boolean contains(ZDD zdd);
     Optional<ZDDVariable> directAssignment();
 }

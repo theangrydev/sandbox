@@ -114,7 +114,7 @@ public class RegularZDD extends ValueType implements ZDD {
     }
 
     @Override
-    public ZDD removeAll(ZDD other) {
+    public ZDD removeAllElementsIn(ZDD other) {
         if (other == ZERO_ZDD) {
             return this;
         }
@@ -123,11 +123,11 @@ public class RegularZDD extends ValueType implements ZDD {
         }
         int comparison = variable.compareTo(other.variable());
         if (comparison == 0) {
-            return thenZdd.removeAll(other).union(elseZdd.removeAll(other));
+            return thenZdd.removeAllElementsIn(other).union(elseZdd.removeAllElementsIn(other));
         } else if (comparison < 0) {
-            return createZDD(variable, thenZdd.removeAll(other), elseZdd.removeAll(other)); // other does not contain this.variable so we just removeAll from the remainder
+            return createZDD(variable, thenZdd.removeAllElementsIn(other), elseZdd.removeAllElementsIn(other)); // other does not contain this.variable so we just removeAllElementsIn from the remainder
         } else { // comparison > 0
-            return removeAll(other.thenZDD()).union(removeAll(other.elseZDD())); // this does not contain other.variable so try the sets that don't contain it
+            return removeAllElementsIn(other.thenZDD()).union(removeAllElementsIn(other.elseZDD())); // this does not contain other.variable so try the sets that don't contain it
         }
     }
 
