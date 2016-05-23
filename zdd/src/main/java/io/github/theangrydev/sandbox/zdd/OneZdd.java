@@ -30,32 +30,12 @@ public class OneZDD extends ValueType implements ZDD {
     }
 
     @Override
-    public ZDD boxUnion(ZDD zdd) {
-        return this;
-    }
-
-    @Override
-    public ZDD boxUnion(RegularZDD zdd) {
-        return this;
-    }
-
-    @Override
     public ZDD intersection(ZDD zdd) {
         return zdd;
     }
 
     @Override
-    public ZDD intersection(RegularZDD zdd) {
-        return zdd;
-    }
-
-    @Override
     public ZDD filter(ZDD zdd) {
-        return zdd;
-    }
-
-    @Override
-    public ZDD filter(RegularZDD zdd) {
         return zdd;
     }
 
@@ -69,14 +49,4 @@ public class OneZDD extends ValueType implements ZDD {
         return Optional.empty();
     }
 
-    @Override
-    public ZDD relativeProduct(ZDD transitions, ZDD exists) {
-        //TODO: i think this should be transitions subtract exists
-        return transitions;
-    }
-
-    @Override
-    public ZDD relativeProduct(RegularZDD transitions, ZDD exists) {
-        return transitions;
-    }
 }
