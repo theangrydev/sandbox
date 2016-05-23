@@ -2,8 +2,8 @@ package io.github.theangrydev.sandbox.zdd;
 
 import java.util.Optional;
 
-public class ZeroZdd extends ValueType implements ZDD {
-    public static ZDD ZERO_ZDD = new ZeroZdd();
+public class ZeroZDD extends ValueType implements ZDD {
+    public static ZDD ZERO_ZDD = new ZeroZDD();
 
     @Override
     public ZDDVariable variable() {

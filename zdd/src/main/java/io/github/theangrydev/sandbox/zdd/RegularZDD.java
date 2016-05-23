@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
 
-import static io.github.theangrydev.sandbox.zdd.OneZdd.ONE_ZDD;
-import static io.github.theangrydev.sandbox.zdd.ZeroZdd.ZERO_ZDD;
+import static io.github.theangrydev.sandbox.zdd.OneZDD.ONE_ZDD;
+import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
 
 public class RegularZDD extends ValueType implements ZDD {
 
