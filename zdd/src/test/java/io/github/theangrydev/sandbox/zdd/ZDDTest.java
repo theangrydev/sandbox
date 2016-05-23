@@ -3,9 +3,9 @@ package io.github.theangrydev.sandbox.zdd;
 import org.assertj.core.api.WithAssertions;
 import org.junit.Test;
 
-import static io.github.theangrydev.sandbox.zdd.OneZDD.ONE_ZDD;
+import static io.github.theangrydev.sandbox.zdd.OneZdd.ONE_ZDD;
 import static io.github.theangrydev.sandbox.zdd.RegularZDD.setOf;
-import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
+import static io.github.theangrydev.sandbox.zdd.ZeroZdd.ZERO_ZDD;
 
 public class ZDDTest implements WithAssertions {
 

@@ -2,10 +2,10 @@ package io.github.theangrydev.sandbox.zdd;
 
 import java.util.Optional;
 
-public class OneZDD extends ValueType implements ZDD {
-    public static ZDD ONE_ZDD = new OneZDD();
+public class OneZdd extends ValueType implements ZDD {
+    public static ZDD ONE_ZDD = new OneZdd();
 
-    private OneZDD() {
+    private OneZdd() {
         // Singleton
     }
 
