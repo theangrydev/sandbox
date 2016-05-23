@@ -88,16 +88,6 @@ public class ZDDTest implements WithAssertions {
     }
 
     @Test
-    public void boxUnion() {
-        ZDDVariable variable1 = ZDDVariable.newVariable(0);
-        ZDDVariable variable2 = ZDDVariable.newVariable(1);
-
-        ZDD union = setOf(variable1).boxUnion(setOf(variable2));
-
-        assertThat(union.contains(setOf(variable1, variable2))).isTrue();
-    }
-
-    @Test
     public void intersection() {
         ZDDVariable variable1 = ZDDVariable.newVariable(0);
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
@@ -192,8 +182,6 @@ public class ZDDTest implements WithAssertions {
     // A_ALL = all afters
     // F_ALL = all frontiers
 
-//    @Test
-//    public void relativeProduct() {
 //        ZDDVariable from1 = ZDDVariable.newVariable(0);
 //        ZDDVariable from2 = ZDDVariable.newVariable(1);
 //        ZDDVariable to = ZDDVariable.newVariable(2);

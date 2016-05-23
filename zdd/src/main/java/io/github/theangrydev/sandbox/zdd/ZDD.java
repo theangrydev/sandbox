@@ -10,14 +10,8 @@ public interface ZDD {
     ZDD thenZDD();
     ZDD elseZDD();
     ZDD union(ZDD zdd);
-    ZDD boxUnion(ZDD zdd);
-    ZDD boxUnion(RegularZDD zdd);
     ZDD intersection(ZDD zdd);
-    ZDD intersection(RegularZDD zdd);
     ZDD filter(ZDD zdd);
-    ZDD filter(RegularZDD zdd);
-    ZDD relativeProduct(ZDD transitions, ZDD exists);
-    ZDD relativeProduct(RegularZDD transitions, ZDD exists);
     boolean contains(ZDD zdd);
     Optional<ZDDVariable> directAssignment();
     default boolean isZero() {
