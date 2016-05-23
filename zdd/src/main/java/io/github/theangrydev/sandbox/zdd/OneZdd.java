@@ -10,12 +10,32 @@ public class OneZDD extends ValueType implements ZDD {
     }
 
     @Override
+    public ZDDVariable variable() {
+        return ZDDVariable.newVariable(Integer.MIN_VALUE);
+    }
+
+    @Override
+    public ZDD thenZDD() {
+        return this;
+    }
+
+    @Override
+    public ZDD elseZDD() {
+        return this;
+    }
+
+    @Override
     public ZDD union(ZDD zdd) {
         return this;
     }
 
     @Override
-    public ZDD union(RegularZDD zdd) {
+    public ZDD boxUnion(ZDD zdd) {
+        return this;
+    }
+
+    @Override
+    public ZDD boxUnion(RegularZDD zdd) {
         return this;
     }
 
@@ -30,18 +50,18 @@ public class OneZDD extends ValueType implements ZDD {
     }
 
     @Override
+    public ZDD filter(ZDD zdd) {
+        return zdd;
+    }
+
+    @Override
+    public ZDD filter(RegularZDD zdd) {
+        return zdd;
+    }
+
+    @Override
     public boolean contains(ZDD zdd) {
         return true;
-    }
-
-    @Override
-    public boolean contains(RegularZDD zdd) {
-        return true;
-    }
-
-    @Override
-    public boolean isContainedBy(RegularZDD zdd) {
-        return false;
     }
 
     @Override

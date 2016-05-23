@@ -119,15 +119,31 @@ public class ZDDTest implements WithAssertions {
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
         ZDDVariable variable3 = ZDDVariable.newVariable(2);
 
-        ZDD oneAndTwo = setOf(variable1, variable2);
-
         ZDD all = setOf(variable1, variable2, variable3).union(setOf(variable1, variable2)).union(setOf(variable2, variable3));
 
-        ZDD filtered = all.filter(oneAndTwo);
+        ZDD filtered = all.filter(setOf(variable1, variable2));
 
         assertThat(filtered.contains(setOf(variable1, variable2, variable3))).isTrue();
         assertThat(filtered.contains(setOf(variable1, variable2))).isTrue();
         assertThat(filtered.contains(setOf(variable2, variable3))).isFalse();
+    }
+
+    @Test
+    public void filterExample() {
+        ZDDVariable from1 = ZDDVariable.newVariable(0);
+        ZDDVariable from2 = ZDDVariable.newVariable(1);
+        ZDDVariable char1 = ZDDVariable.newVariable(2);
+        ZDDVariable char2 = ZDDVariable.newVariable(3);
+        ZDDVariable to1 = ZDDVariable.newVariable(4);
+        ZDDVariable to2 = ZDDVariable.newVariable(5);
+
+        ZDD frontier = setOf(from1, char1);
+        ZDD transitions = setOf(from1, char1, to1).union(setOf(from2, char2, to2));
+
+        ZDD applicableTransition = transitions.filter(frontier);
+
+        assertThat(applicableTransition.contains(setOf(from1, char1, to1))).isTrue();
+        assertThat(applicableTransition.contains(setOf(from2, char2, to2))).isFalse();
     }
 
     @Test
