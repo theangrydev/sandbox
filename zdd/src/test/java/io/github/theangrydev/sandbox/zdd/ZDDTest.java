@@ -104,14 +104,14 @@ public class ZDDTest implements WithAssertions {
     }
 
     @Test
-    public void filter() {
+    public void retainOverlap() {
         ZDDVariable variable1 = ZDDVariable.newVariable(0);
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
         ZDDVariable variable3 = ZDDVariable.newVariable(2);
 
         ZDD all = setOf(variable1, variable2, variable3).union(setOf(variable1, variable2)).union(setOf(variable2, variable3));
 
-        ZDD filtered = all.filter(setOf(variable1, variable2));
+        ZDD filtered = all.retainOverlap(setOf(variable1, variable2));
 
         assertThat(filtered.contains(setOf(variable1, variable2, variable3))).isTrue();
         assertThat(filtered.contains(setOf(variable1, variable2))).isTrue();
@@ -119,7 +119,7 @@ public class ZDDTest implements WithAssertions {
     }
 
     @Test
-    public void filterExample() {
+    public void retainOverlapExample() {
         ZDDVariable from1 = ZDDVariable.newVariable(0);
         ZDDVariable from2 = ZDDVariable.newVariable(1);
         ZDDVariable char1 = ZDDVariable.newVariable(2);
@@ -130,18 +130,18 @@ public class ZDDTest implements WithAssertions {
         ZDD frontier = setOf(from1, char1);
         ZDD transitions = setOf(from1, char1, to1).union(setOf(from2, char2, to2));
 
-        ZDD applicableTransition = transitions.filter(frontier);
+        ZDD applicableTransition = transitions.retainOverlap(frontier);
 
         assertThat(applicableTransition.contains(setOf(from1, char1, to1))).isTrue();
         assertThat(applicableTransition.contains(setOf(from2, char2, to2))).isFalse();
     }
 
     @Test
-    public void removeSingle() {
+    public void removeAllSingle() {
         ZDDVariable variable1 = ZDDVariable.newVariable(0);
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
 
-        ZDD remove = setOf(variable1, variable2).remove(setOf(variable1));
+        ZDD remove = setOf(variable1, variable2).removeAll(setOf(variable1));
 
         assertThat(remove.contains(setOf(variable2))).isTrue();
         assertThat(remove.contains(setOf(variable1, variable2))).isFalse();
@@ -149,19 +149,19 @@ public class ZDDTest implements WithAssertions {
     }
 
     @Test
-    public void removeMultiple() {
+    public void removeAllMultiple() {
         ZDDVariable variable1 = ZDDVariable.newVariable(0);
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
         ZDDVariable variable3 = ZDDVariable.newVariable(2);
 
-        ZDD remove = setOf(variable1, variable2, variable3).remove(setOf(variable1, variable2));
+        ZDD remove = setOf(variable1, variable2, variable3).removeAll(setOf(variable1, variable2));
 
         assertThat(remove.contains(setOf(variable3))).isTrue();
         assertThat(remove.contains(setOf(variable1, variable2, variable3))).isFalse();
     }
 
     @Test
-    public void removeExample() {
+    public void removeAllExample() {
         ZDDVariable from1 = ZDDVariable.newVariable(0);
         ZDDVariable from2 = ZDDVariable.newVariable(1);
         ZDDVariable char1 = ZDDVariable.newVariable(2);
@@ -172,7 +172,7 @@ public class ZDDTest implements WithAssertions {
         ZDD allFromStates = setOf(from1, from2, char1, char2);
         ZDD transitions = setOf(from1, char1, to1).union(setOf(from2, char2, to2));
 
-        ZDD next = transitions.remove(allFromStates);
+        ZDD next = transitions.removeAll(allFromStates);
 
         assertThat(next.contains(setOf(to1))).isTrue();
         assertThat(next.contains(setOf(to2))).isTrue();

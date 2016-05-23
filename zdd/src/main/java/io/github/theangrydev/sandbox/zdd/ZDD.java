@@ -9,8 +9,8 @@ public interface ZDD {
     ZDD elseZDD();
     ZDD union(ZDD zdd);
     ZDD intersection(ZDD zdd);
-    ZDD filter(ZDD zdd);
-    ZDD remove(ZDD zdd);
+    ZDD retainOverlap(ZDD zdd);
+    ZDD removeAll(ZDD zdd);
     boolean contains(ZDD zdd);
     Optional<ZDDVariable> directAssignment();
 }

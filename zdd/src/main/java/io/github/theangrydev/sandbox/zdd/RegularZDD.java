@@ -92,7 +92,7 @@ public class RegularZDD extends ValueType implements ZDD {
     }
 
     @Override
-    public ZDD filter(ZDD other) {
+    public ZDD retainOverlap(ZDD other) {
         if (other == ZERO_ZDD) {
             return ZERO_ZDD;
         }
@@ -101,20 +101,20 @@ public class RegularZDD extends ValueType implements ZDD {
         }
         int comparison = variable.compareTo(other.variable());
         if (comparison == 0) {
-            ZDD thenFilterThen = thenZdd.filter(other.thenZDD());
-            ZDD thenFilterElse = thenZdd.filter(other.elseZDD());
-            ZDD elseBranch = elseZdd.filter(other.elseZDD());
+            ZDD thenFilterThen = thenZdd.retainOverlap(other.thenZDD());
+            ZDD thenFilterElse = thenZdd.retainOverlap(other.elseZDD());
+            ZDD elseBranch = elseZdd.retainOverlap(other.elseZDD());
             ZDD thenBranch = thenFilterThen.union(thenFilterElse);
             return createZDD(variable, thenBranch, elseBranch);
         } else if (comparison < 0) {
-            return createZDD(variable, thenZdd.filter(other), elseZdd.filter(other)); // other does not contain this.variable so we just filter the remainder
+            return createZDD(variable, thenZdd.retainOverlap(other), elseZdd.retainOverlap(other)); // other does not contain this.variable so we just retainOverlap the remainder
         } else { // comparison > 0
-            return filter(other.elseZDD()); // this does not contain other.variable so try the sets that don't contain it
+            return retainOverlap(other.elseZDD()); // this does not contain other.variable so try the sets that don't contain it
         }
     }
 
     @Override
-    public ZDD remove(ZDD other) {
+    public ZDD removeAll(ZDD other) {
         if (other == ZERO_ZDD) {
             return this;
         }
@@ -123,11 +123,11 @@ public class RegularZDD extends ValueType implements ZDD {
         }
         int comparison = variable.compareTo(other.variable());
         if (comparison == 0) {
-            return thenZdd.remove(other).union(elseZdd.remove(other));
+            return thenZdd.removeAll(other).union(elseZdd.removeAll(other));
         } else if (comparison < 0) {
-            return createZDD(variable, thenZdd.remove(other), elseZdd.remove(other)); // other does not contain this.variable so we just remove from the remainder
+            return createZDD(variable, thenZdd.removeAll(other), elseZdd.removeAll(other)); // other does not contain this.variable so we just removeAll from the remainder
         } else { // comparison > 0
-            return remove(other.thenZDD()).union(remove(other.elseZDD())); // this does not contain other.variable so try the sets that don't contain it
+            return removeAll(other.thenZDD()).union(removeAll(other.elseZDD())); // this does not contain other.variable so try the sets that don't contain it
         }
     }
 

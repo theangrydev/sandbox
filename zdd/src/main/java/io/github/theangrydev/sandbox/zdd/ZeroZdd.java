@@ -31,12 +31,12 @@ public class ZeroZDD extends ValueType implements ZDD {
     }
 
     @Override
-    public ZDD filter(ZDD zdd) {
+    public ZDD retainOverlap(ZDD zdd) {
         return this;
     }
 
     @Override
-    public ZDD remove(ZDD zdd) {
+    public ZDD removeAll(ZDD zdd) {
         return this;
     }
 
