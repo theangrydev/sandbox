@@ -1,8 +1,6 @@
 package io.github.theangrydev.sandbox.zdd;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 
 import static io.github.theangrydev.sandbox.zdd.OneZDD.ONE_ZDD;
 import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
@@ -129,6 +127,22 @@ public class RegularZDD extends ValueType implements ZDD {
         } else { // comparison > 0
             return removeAllElementsIn(other.thenZDD()).union(removeAllElementsIn(other.elseZDD())); // this does not contain other.variable so try the sets that don't contain it
         }
+    }
+
+    //TODO: should there just be a rename for one pairing and you repeatedly apply that or..?
+    @Override
+    public ZDD rename(ZDDVariable from, ZDDVariable to) {
+//        int comparison = variable.compareTo(from);
+//        if (comparison == 0) {
+//            TODO: what here? according to http://fmt.cs.utwente.nl/files/sprojects/251.pdf if the rename is like an offset then less work needs to be done
+//             kind of interested in what the full version would be too though...
+//            return null;
+//        } else if (comparison < 0) {
+//            return createZDD(variable, thenZdd.rename(from, to), elseZdd.rename(from, to));
+//        } else {// comparison > 0
+//            return rename(, renames.next(), );
+//        }
+        return null;
     }
 
     @Override

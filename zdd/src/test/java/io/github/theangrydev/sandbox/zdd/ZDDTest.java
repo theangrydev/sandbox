@@ -216,6 +216,19 @@ public class ZDDTest implements WithAssertions {
         assertThat(all.contains(setOf(variable2))).isFalse();
     }
 
+    @Test
+    public void rename() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(0);
+        ZDDVariable variable2 = ZDDVariable.newVariable(1);
+
+        ZDD one = setOf(variable1);
+
+        ZDD renamed = one.rename(, new Renames(null, variable1, variable2), );
+
+        assertThat(renamed.contains(setOf(variable1))).isFalse();
+        assertThat(renamed.contains(setOf(variable2))).isTrue();
+    }
+
     //TODO: think about ( ( (F |_| A_ALL) |-| T) |-| F_ALL ) \ F_ALL)
     // where:
     // F = frontier
