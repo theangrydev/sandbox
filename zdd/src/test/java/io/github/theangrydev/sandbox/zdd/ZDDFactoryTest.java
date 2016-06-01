@@ -10,7 +10,7 @@ public class ZDDFactoryTest implements WithAssertions {
 
     @Test
     public void createZDDWithZeroThenReturnsElse() {
-        ZDDFactory zddFactory = new ZDDFactory(0);
+        ZDDFactory zddFactory = new ZDDFactory(0, Runnable::run);
 
         ZDD elseZDD = zddFactory.createZDD(ZDDVariable.newVariable(0), ONE_ZDD, ZERO_ZDD);
         ZDD thenZDD = ZERO_ZDD;
@@ -22,7 +22,7 @@ public class ZDDFactoryTest implements WithAssertions {
 
     @Test
     public void createZDDThatHasAlreadyBeenCreatedReturnsSameZDD() {
-        ZDDFactory zddFactory = new ZDDFactory(1);
+        ZDDFactory zddFactory = new ZDDFactory(1, Runnable::run);
 
         ZDDVariable variable = ZDDVariable.newVariable(0);
         ZDD thenZDD = ONE_ZDD;
@@ -36,7 +36,7 @@ public class ZDDFactoryTest implements WithAssertions {
 
     @Test
     public void createZDDThatHasAlreadyBeenCreatedReturnsNewZDDIfCacheSizeIsReachedAndAnotherEntryIsMorePopular() {
-        ZDDFactory zddFactory = new ZDDFactory(0);
+        ZDDFactory zddFactory = new ZDDFactory(0, Runnable::run);
 
         ZDDVariable variable = ZDDVariable.newVariable(0);
         ZDD thenZDD = ONE_ZDD;

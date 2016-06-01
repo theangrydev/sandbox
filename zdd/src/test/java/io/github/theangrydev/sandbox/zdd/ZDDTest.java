@@ -4,30 +4,10 @@ import org.assertj.core.api.WithAssertions;
 import org.junit.Test;
 
 import static io.github.theangrydev.sandbox.zdd.OneZDD.ONE_ZDD;
-import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
 
 public class ZDDTest implements WithAssertions {
 
     private final ZDDFactory zddFactory = new ZDDFactory(1000);
-
-    @Test
-    public void zeroZDD() {
-        assertThat(ZERO_ZDD).isNotNull();
-    }
-
-    @Test
-    public void oneZDD() {
-        assertThat(ONE_ZDD).isNotNull();
-    }
-
-    @Test
-    public void oneHasNoDirectAssignment() {
-        assertThat(ONE_ZDD.directAssignment()).isEmpty();
-    }
-
-    private ZDD setOf(ZDDVariable... variables) {
-        return zddFactory.setOf(variables);
-    }
 
     @Test
     public void withOneVariableContainsThatVariable() {
@@ -219,6 +199,10 @@ public class ZDDTest implements WithAssertions {
         assertThat(all.contains(setOf(variable1, variable2))).isTrue();
         assertThat(all.contains(setOf(variable1))).isTrue();
         assertThat(all.contains(setOf(variable2))).isFalse();
+    }
+
+    private ZDD setOf(ZDDVariable... variables) {
+        return zddFactory.setOf(variables);
     }
 
     //TODO: think about ( ( (F |_| A_ALL) |-| T) |-| F_ALL ) \ F_ALL)
