@@ -1,7 +1,5 @@
 package io.github.theangrydev.sandbox.zdd;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Optional;
 
 import static io.github.theangrydev.sandbox.zdd.OneZDD.ONE_ZDD;
@@ -9,31 +7,16 @@ import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
 
 public class RegularZDD extends ValueType implements ZDD {
 
+    private final ZDDFactory zddFactory;
     private final ZDDVariable variable;
     private final ZDD thenZdd;
     private final ZDD elseZdd;
 
-    private RegularZDD(ZDDVariable variable, ZDD thenZdd, ZDD elseZdd) {
+    RegularZDD(ZDDFactory zddFactory, ZDDVariable variable, ZDD thenZdd, ZDD elseZdd) {
+        this.zddFactory = zddFactory;
         this.variable = variable;
         this.thenZdd = thenZdd;
         this.elseZdd = elseZdd;
-    }
-
-    private static ZDD createZDD(ZDDVariable variable, ZDD thenZdd, ZDD elseZdd) {
-        if (thenZdd == ZERO_ZDD) {
-            return elseZdd;
-        } else {
-            return new RegularZDD(variable, thenZdd, elseZdd);
-        }
-    }
-
-    public static ZDD setOf(ZDDVariable... zddVariables) {
-        Arrays.sort(zddVariables, Comparator.reverseOrder());
-        ZDD zdd = ONE_ZDD;
-        for (ZDDVariable zddVariable : zddVariables) {
-            zdd = createZDD(zddVariable, zdd, ZERO_ZDD);
-        }
-        return zdd;
     }
 
     @Override
@@ -57,17 +40,17 @@ public class RegularZDD extends ValueType implements ZDD {
             return this;
         }
         if (other == ONE_ZDD) {
-            return createZDD(variable, ONE_ZDD, ONE_ZDD);
+            return zddFactory.createZDD(variable, ONE_ZDD, ONE_ZDD);
         }
         int comparison = variable.compareTo(other.variable());
         if (comparison == 0) { // both contain the variable to we need to union each side
             ZDD thenUnion = thenZdd.union(other.thenZDD());
             ZDD elseUnion = elseZdd.union(other.elseZDD());
-            return createZDD(variable, thenUnion, elseUnion);
+            return zddFactory.createZDD(variable, thenUnion, elseUnion);
         } else if (comparison < 0) {
-            return createZDD(variable, thenZdd, elseZdd.union(other)); // other does not contain this.variable so we only need to union the else side
+            return zddFactory.createZDD(variable, thenZdd, elseZdd.union(other)); // other does not contain this.variable so we only need to union the else side
         } else { // comparison > 0
-            return createZDD(other.variable(), other.thenZDD(), union(other.elseZDD())); // this does not contain other.variable so we only need to union the else side
+            return zddFactory.createZDD(other.variable(), other.thenZDD(), union(other.elseZDD())); // this does not contain other.variable so we only need to union the else side
         }
     }
 
@@ -83,7 +66,7 @@ public class RegularZDD extends ValueType implements ZDD {
         if (comparison == 0) {
             ZDD thenIntersection = thenZdd.intersection(other.thenZDD());
             ZDD elseIntersection = elseZdd.intersection(other.elseZDD());
-            return createZDD(variable, thenIntersection, elseIntersection);
+            return zddFactory.createZDD(variable, thenIntersection, elseIntersection);
         } else if (comparison < 0) {
             return elseZdd.intersection(other); // other does not contain this.variable so we chop of the this.then branch
         } else { // comparison > 0
@@ -105,9 +88,9 @@ public class RegularZDD extends ValueType implements ZDD {
             ZDD thenFilterElse = thenZdd.retainOverlapping(other.elseZDD());
             ZDD elseBranch = elseZdd.retainOverlapping(other.elseZDD());
             ZDD thenBranch = thenFilterThen.union(thenFilterElse);
-            return createZDD(variable, thenBranch, elseBranch);
+            return zddFactory.createZDD(variable, thenBranch, elseBranch);
         } else if (comparison < 0) {
-            return createZDD(variable, thenZdd.retainOverlapping(other), elseZdd.retainOverlapping(other)); // other does not contain this.variable so we just retainOverlapping the remainder
+            return zddFactory.createZDD(variable, thenZdd.retainOverlapping(other), elseZdd.retainOverlapping(other)); // other does not contain this.variable so we just retainOverlapping the remainder
         } else { // comparison > 0
             return retainOverlapping(other.elseZDD()); // this does not contain other.variable so try the sets that don't contain it
         }
@@ -125,7 +108,7 @@ public class RegularZDD extends ValueType implements ZDD {
         if (comparison == 0) {
             return thenZdd.removeAllElementsIn(other).union(elseZdd.removeAllElementsIn(other));
         } else if (comparison < 0) {
-            return createZDD(variable, thenZdd.removeAllElementsIn(other), elseZdd.removeAllElementsIn(other)); // other does not contain this.variable so we just removeAllElementsIn from the remainder
+            return zddFactory.createZDD(variable, thenZdd.removeAllElementsIn(other), elseZdd.removeAllElementsIn(other)); // other does not contain this.variable so we just removeAllElementsIn from the remainder
         } else { // comparison > 0
             return removeAllElementsIn(other.thenZDD()).union(removeAllElementsIn(other.elseZDD())); // this does not contain other.variable so try the sets that don't contain it
         }

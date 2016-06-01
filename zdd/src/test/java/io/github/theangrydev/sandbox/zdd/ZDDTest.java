@@ -4,10 +4,11 @@ import org.assertj.core.api.WithAssertions;
 import org.junit.Test;
 
 import static io.github.theangrydev.sandbox.zdd.OneZDD.ONE_ZDD;
-import static io.github.theangrydev.sandbox.zdd.RegularZDD.setOf;
 import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
 
 public class ZDDTest implements WithAssertions {
+
+    private final ZDDFactory zddFactory = new ZDDFactory(1000);
 
     @Test
     public void zeroZDD() {
@@ -22,6 +23,10 @@ public class ZDDTest implements WithAssertions {
     @Test
     public void oneHasNoDirectAssignment() {
         assertThat(ONE_ZDD.directAssignment()).isEmpty();
+    }
+
+    private ZDD setOf(ZDDVariable... variables) {
+        return zddFactory.setOf(variables);
     }
 
     @Test
