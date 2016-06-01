@@ -11,4 +11,9 @@ public class ZeroZDDTest implements WithAssertions {
     public void zeroZDD() {
         assertThat(ZERO_ZDD).isNotNull();
     }
+
+    @Test
+    public void toStringIsTheEmptySet() {
+        assertThat(ZERO_ZDD).hasToString("∅");
+    }
 }

@@ -31,6 +31,11 @@ public class ZeroZDD extends ValueType implements ZDD {
     }
 
     @Override
+    public ZDD extend(ZDD zdd) {
+        return this;
+    }
+
+    @Override
     public ZDD retainOverlapping(ZDD zdd) {
         return this;
     }
@@ -50,4 +55,13 @@ public class ZeroZDD extends ValueType implements ZDD {
         return Optional.empty();
     }
 
+    @Override
+    public void appendSets(StringBuilder prefix, StringBuilder stringBuilder) {
+
+    }
+
+    @Override
+    public String toString() {
+        return "∅";
+    }
 }

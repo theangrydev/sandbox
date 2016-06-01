@@ -55,6 +55,24 @@ public class RegularZDD extends ValueType implements ZDD {
     }
 
     @Override
+    public ZDD extend(ZDD other) {
+        if (other == ZERO_ZDD) {
+            return this;
+        }
+        if (other == ONE_ZDD) {
+            return zddFactory.createZDD(variable, ONE_ZDD, ONE_ZDD);
+        }
+        int comparison = variable.compareTo(other.variable());
+        if (comparison == 0) { // both contain the variable to we need to union each side
+            return zddFactory.createZDD(variable, thenZdd.extend(other.thenZDD()), elseZdd.extend(other.elseZDD()));
+        } else if (comparison < 0) {
+            return zddFactory.createZDD(variable, thenZdd.extend(other), elseZdd.extend(other)); // other does not contain this.variable so we only need to union the else side
+        } else { // comparison > 0
+            return zddFactory.createZDD(other.variable(), extend(other.thenZDD()), extend(other.elseZDD())); // this does not contain other.variable so we only need to union the else side
+        }
+    }
+
+    @Override
     public ZDD intersection(ZDD other) {
         if (other == ZERO_ZDD) {
             return ZERO_ZDD;
@@ -98,11 +116,8 @@ public class RegularZDD extends ValueType implements ZDD {
 
     @Override
     public ZDD removeAllElementsIn(ZDD other) {
-        if (other == ZERO_ZDD) {
+        if (other == ZERO_ZDD || other == ONE_ZDD) {
             return this;
-        }
-        if (other == ONE_ZDD) {
-            return ZERO_ZDD;
         }
         int comparison = variable.compareTo(other.variable());
         if (comparison == 0) {
@@ -110,7 +125,7 @@ public class RegularZDD extends ValueType implements ZDD {
         } else if (comparison < 0) {
             return zddFactory.createZDD(variable, thenZdd.removeAllElementsIn(other), elseZdd.removeAllElementsIn(other)); // other does not contain this.variable so we just removeAllElementsIn from the remainder
         } else { // comparison > 0
-            return removeAllElementsIn(other.thenZDD()).union(removeAllElementsIn(other.elseZDD())); // this does not contain other.variable so try the sets that don't contain it
+            return removeAllElementsIn(other.thenZDD()).removeAllElementsIn(other.elseZDD()); // this does not contain other.variable so try the sets that don't contain it
         }
     }
 
@@ -139,5 +154,45 @@ public class RegularZDD extends ValueType implements ZDD {
             return Optional.of(variable);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append('{');
+        appendSetsStart(new StringBuilder(), stringBuilder);
+        stringBuilder.append('}');
+        return stringBuilder.toString();
+    }
+
+    @Override
+    public void appendSets(StringBuilder prefix, StringBuilder stringBuilder) {
+        stringBuilder.append(',');
+        appendSetsStart(prefix, stringBuilder);
+    }
+
+    //TODO: fix this stuff
+    private void appendSetsStart(StringBuilder prefix, StringBuilder stringBuilder) {
+        stringBuilder.append('{');
+        stringBuilder.append(prefix);
+        stringBuilder.append(variable.toString());
+        ZDD current = thenZdd;
+        while (current != ONE_ZDD) {
+            stringBuilder.append(',');
+            stringBuilder.append(current.variable().toString());
+            current = current.thenZDD();
+        }
+        stringBuilder.append('}');
+
+        prefix.append()
+        current = thenZdd;
+        while (current != ONE_ZDD) {
+            prefix.append(",");
+            prefix.append(current.variable().toString());
+            //TODO: there is a shared prefix at this point
+            current.elseZDD().appendSets(prefix, stringBuilder);
+            current = current.thenZDD();
+        }
+        elseZdd.appendSets(prefix, stringBuilder);
     }
 }

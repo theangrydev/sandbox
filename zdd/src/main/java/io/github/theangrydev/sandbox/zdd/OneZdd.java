@@ -2,6 +2,8 @@ package io.github.theangrydev.sandbox.zdd;
 
 import java.util.Optional;
 
+import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
+
 public class OneZDD extends ValueType implements ZDD {
     public static ZDD ONE_ZDD = new OneZDD();
 
@@ -35,18 +37,27 @@ public class OneZDD extends ValueType implements ZDD {
     }
 
     @Override
+    public ZDD extend(ZDD zdd) {
+        return zdd;
+    }
+
+    @Override
     public ZDD retainOverlapping(ZDD zdd) {
         return zdd;
     }
 
     @Override
     public ZDD removeAllElementsIn(ZDD zdd) {
-        throw new UnsupportedOperationException();
+        if (zdd == ZERO_ZDD) {
+            return ZERO_ZDD;
+        } else {
+            return this;
+        }
     }
 
     @Override
     public boolean contains(ZDD zdd) {
-        return true;
+        return zdd == ONE_ZDD || zdd == ZERO_ZDD;
     }
 
     @Override
@@ -54,4 +65,13 @@ public class OneZDD extends ValueType implements ZDD {
         return Optional.empty();
     }
 
+    @Override
+    public void appendSets(StringBuilder prefix, StringBuilder stringBuilder) {
+
+    }
+
+    @Override
+    public String toString() {
+        return "{∅}";
+    }
 }

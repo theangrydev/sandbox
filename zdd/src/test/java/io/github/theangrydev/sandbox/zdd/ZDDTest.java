@@ -4,6 +4,7 @@ import org.assertj.core.api.WithAssertions;
 import org.junit.Test;
 
 import static io.github.theangrydev.sandbox.zdd.OneZDD.ONE_ZDD;
+import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
 
 public class ZDDTest implements WithAssertions {
 
@@ -28,6 +29,62 @@ public class ZDDTest implements WithAssertions {
     }
 
     @Test
+    public void extendSingleSets() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(0);
+        ZDDVariable variable2 = ZDDVariable.newVariable(1);
+
+        ZDD extended = setOf(variable1).extend(setOf(variable2));
+
+        assertThat(extended.contains(setOf(variable1, variable2))).isTrue();
+        assertThat(extended.contains(setOf(variable1))).isFalse();
+        assertThat(extended.contains(setOf(variable2))).isFalse();
+    }
+
+    @Test
+    public void extendFamilyOfSetsWithSingleSet() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(1);
+        ZDDVariable variable2 = ZDDVariable.newVariable(2);
+        ZDDVariable variable3 = ZDDVariable.newVariable(3);
+        ZDDVariable variable4 = ZDDVariable.newVariable(4);
+
+        ZDD family = setOf(variable1, variable2, variable3).union(setOf(variable1, variable2));
+        ZDD singleSet = setOf(variable4);
+
+        ZDD extended = family.extend(singleSet);
+
+        assertThat(extended.contains(setOf(variable1, variable2, variable3, variable4))).isTrue();
+        assertThat(extended.contains(setOf(variable1, variable2, variable4))).isTrue();
+        assertThat(extended).hasToString("{{1,2,3,4},{1,2,4}}");
+    }
+
+    @Test
+    public void extendSingleSetWithFamilyOfSets() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(1);
+        ZDDVariable variable2 = ZDDVariable.newVariable(2);
+        ZDDVariable variable3 = ZDDVariable.newVariable(3);
+        ZDDVariable variable4 = ZDDVariable.newVariable(4);
+
+        ZDD family = setOf(variable1, variable2, variable3).union(setOf(variable1, variable2));
+        ZDD singleSet = setOf(variable4);
+
+        ZDD extended = singleSet.extend(family);
+
+        assertThat(extended.contains(setOf(variable1, variable2, variable3, variable4))).isTrue();
+        assertThat(extended.contains(setOf(variable1, variable2, variable4))).isTrue();
+        assertThat(extended).hasToString("{{1,2,3,4},{1,2,4}}");
+    }
+
+    @Test
+    public void extendOverlapping() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(0);
+        ZDDVariable variable2 = ZDDVariable.newVariable(0);
+
+        ZDD extended = setOf(variable1).extend(setOf(variable1, variable2));
+
+        assertThat(extended.contains(setOf(variable1, variable2))).isTrue();
+    }
+
+    @Test
     public void unionOfSingleSets() {
         ZDDVariable variable1 = ZDDVariable.newVariable(0);
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
@@ -45,11 +102,14 @@ public class ZDDTest implements WithAssertions {
         ZDDVariable variable1 = ZDDVariable.newVariable(0);
         ZDDVariable variable2 = ZDDVariable.newVariable(1);
         ZDDVariable variable3 = ZDDVariable.newVariable(2);
+        ZDDVariable variable4 = ZDDVariable.newVariable(3);
+        ZDDVariable variable5 = ZDDVariable.newVariable(4);
 
-        ZDD union = setOf(variable1, variable2, variable3).union(setOf(variable1, variable2));
+        ZDD union = setOf(variable1, variable2, variable3).union(setOf(variable4, variable5));
 
         assertThat(union.contains(setOf(variable1, variable2, variable3))).isTrue();
-        assertThat(union.contains(setOf(variable1, variable2))).isTrue();
+        assertThat(union.contains(setOf(variable4, variable5))).isTrue();
+        assertThat(union.contains(setOf(variable1, variable2, variable3, variable4, variable5))).isFalse();
     }
 
     @Test
@@ -70,6 +130,7 @@ public class ZDDTest implements WithAssertions {
         ZDD union = setOf(variable1).union(ONE_ZDD);
 
         assertThat(union.contains(setOf(variable1))).isTrue();
+        assertThat(union.contains(ZERO_ZDD)).isTrue();
     }
 
     @Test
@@ -161,6 +222,7 @@ public class ZDDTest implements WithAssertions {
 
         assertThat(next.contains(setOf(to1))).isTrue();
         assertThat(next.contains(setOf(to2))).isTrue();
+        assertThat(next).hasToString("{{4},{5}}");
     }
 
     @Test
@@ -199,6 +261,43 @@ public class ZDDTest implements WithAssertions {
         assertThat(all.contains(setOf(variable1, variable2))).isTrue();
         assertThat(all.contains(setOf(variable1))).isTrue();
         assertThat(all.contains(setOf(variable2))).isFalse();
+    }
+
+    @Test
+    public void toStringSingleElementSet() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(0);
+
+        assertThat(setOf(variable1)).hasToString("{{0}}");
+    }
+
+    @Test
+    public void toStringSingleMultipleElementSet() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(1);
+        ZDDVariable variable2 = ZDDVariable.newVariable(2);
+
+        assertThat(setOf(variable1, variable2)).hasToString("{{1,2}}");
+    }
+
+    @Test
+    public void toStringFamilyOfDisjointSets() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(1);
+        ZDDVariable variable2 = ZDDVariable.newVariable(2);
+        ZDDVariable variable3 = ZDDVariable.newVariable(3);
+        ZDDVariable variable4 = ZDDVariable.newVariable(4);
+
+        assertThat(setOf(variable1, variable2).union(setOf(variable3, variable4))).hasToString("{{1,2},{3,4}}");
+    }
+
+    @Test
+    public void toStringFamilyOfOverlappingSets() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(1);
+        ZDDVariable variable2 = ZDDVariable.newVariable(2);
+        ZDDVariable variable3 = ZDDVariable.newVariable(3);
+        ZDDVariable variable4 = ZDDVariable.newVariable(4);
+
+        ZDD familyOfOverlappingSets = setOf(variable1, variable2, variable3, variable4).union(setOf(variable1, variable2, variable4));
+
+        assertThat(familyOfOverlappingSets).hasToString("{{1,2,3,4},{1,2,4}}");
     }
 
     private ZDD setOf(ZDDVariable... variables) {

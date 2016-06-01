@@ -16,4 +16,9 @@ public class ZDDVariable extends ValueType implements Comparable<ZDDVariable> {
     public int compareTo(ZDDVariable other) {
         return Integer.compare(ordering, other.ordering);
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(ordering);
+    }
 }

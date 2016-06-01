@@ -16,4 +16,9 @@ public class OneZDDTest implements WithAssertions {
     public void oneHasNoDirectAssignment() {
         assertThat(ONE_ZDD.directAssignment()).isEmpty();
     }
+
+    @Test
+    public void toStringIsTheSetOfTheEmptySet() {
+        assertThat(ONE_ZDD).hasToString("{∅}");
+    }
 }
