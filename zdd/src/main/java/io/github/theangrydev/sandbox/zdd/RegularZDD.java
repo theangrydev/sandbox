@@ -57,10 +57,10 @@ public class RegularZDD extends ValueType implements ZDD {
     @Override
     public ZDD extend(ZDD other) {
         if (other == ZERO_ZDD) {
-            return this;
+            return ZERO_ZDD;
         }
         if (other == ONE_ZDD) {
-            return zddFactory.createZDD(variable, ONE_ZDD, ONE_ZDD);
+            return this;
         }
         int comparison = variable.compareTo(other.variable());
         if (comparison == 0) { // both contain the variable to we need to union each side
