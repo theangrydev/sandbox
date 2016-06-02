@@ -57,7 +57,7 @@ public class ZeroZDD extends ValueType implements ZDD {
 
     @Override
     public void appendSets(StringBuilder prefix, StringBuilder stringBuilder) {
-
+        // nothing to do
     }
 
     @Override

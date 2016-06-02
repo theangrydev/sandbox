@@ -67,7 +67,10 @@ public class OneZDD extends ValueType implements ZDD {
 
     @Override
     public void appendSets(StringBuilder prefix, StringBuilder stringBuilder) {
-
+        stringBuilder.append(',');
+        stringBuilder.append('{');
+        stringBuilder.append(prefix);
+        stringBuilder.setCharAt(stringBuilder.length() - 1, '}');
     }
 
     @Override

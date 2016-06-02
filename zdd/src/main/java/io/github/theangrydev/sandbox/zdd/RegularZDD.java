@@ -160,7 +160,7 @@ public class RegularZDD extends ValueType implements ZDD {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('{');
-        appendSetsStart(new StringBuilder(), stringBuilder);
+        appendThenAndElseSets(new StringBuilder(), stringBuilder);
         stringBuilder.append('}');
         return stringBuilder.toString();
     }
@@ -168,31 +168,33 @@ public class RegularZDD extends ValueType implements ZDD {
     @Override
     public void appendSets(StringBuilder prefix, StringBuilder stringBuilder) {
         stringBuilder.append(',');
-        appendSetsStart(prefix, stringBuilder);
+        appendThenAndElseSets(prefix, stringBuilder);
     }
 
-    //TODO: fix this stuff
-    private void appendSetsStart(StringBuilder prefix, StringBuilder stringBuilder) {
+    private void appendThenAndElseSets(StringBuilder prefix, StringBuilder stringBuilder) {
+        appendThenSet(prefix, stringBuilder);
+        appendElseSets(prefix, stringBuilder);
+    }
+
+    private void appendThenSet(StringBuilder prefix, StringBuilder stringBuilder) {
         stringBuilder.append('{');
         stringBuilder.append(prefix);
-        stringBuilder.append(variable.toString());
-        ZDD current = thenZdd;
+        ZDD current = this;
         while (current != ONE_ZDD) {
-            stringBuilder.append(',');
             stringBuilder.append(current.variable().toString());
+            stringBuilder.append(',');
             current = current.thenZDD();
         }
-        stringBuilder.append('}');
+        stringBuilder.setCharAt(stringBuilder.length() - 1, '}');
+    }
 
-        prefix.append()
-        current = thenZdd;
+    private void appendElseSets(StringBuilder prefix, StringBuilder stringBuilder) {
+        ZDD current = this;
         while (current != ONE_ZDD) {
-            prefix.append(",");
+            current.elseZDD().appendSets(new StringBuilder(prefix), stringBuilder);
             prefix.append(current.variable().toString());
-            //TODO: there is a shared prefix at this point
-            current.elseZDD().appendSets(prefix, stringBuilder);
+            prefix.append(',');
             current = current.thenZDD();
         }
-        elseZdd.appendSets(prefix, stringBuilder);
     }
 }
