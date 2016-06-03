@@ -129,10 +129,14 @@ public class RegularZDD extends ValueType implements ZDD {
             ZDD thenBranch = thenFilterThen.union(thenFilterElse);
             return createZDD(variable, thenBranch, elseBranch);
         } else if (comparison < 0) {
-            return createZDD(variable, thenZdd.retainOverlapping(other), elseZdd.retainOverlapping(other));
+            return retainOverlappingWithOtherInBothSides(other);
         } else {
             return retainOverlapping(other.thenZDD()).retainOverlapping(other.elseZDD());
         }
+    }
+
+    private ZDD retainOverlappingWithOtherInBothSides(ZDD other) {
+        return createZDD(variable, thenZdd.retainOverlapping(other), elseZdd.retainOverlapping(other));
     }
 
     @Override
