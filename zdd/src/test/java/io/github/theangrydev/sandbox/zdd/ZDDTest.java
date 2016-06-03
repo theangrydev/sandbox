@@ -75,6 +75,18 @@ public class ZDDTest implements WithAssertions {
     }
 
     @Test
+    public void extendSingleSetWithEmptyFamily() {
+        ZDDVariable variable1 = ZDDVariable.newVariable(1);
+
+        ZDD singleSet = setOf(variable1);
+
+        ZDD extended = singleSet.extend(ZERO_ZDD);
+
+        assertThat(extended.contains(setOf(variable1))).isTrue();
+        assertThat(extended).hasToString("{{1}}");
+    }
+
+    @Test
     public void extendSingleSetWithOne() {
         ZDDVariable variable1 = ZDDVariable.newVariable(1);
 

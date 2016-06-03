@@ -57,18 +57,18 @@ public class RegularZDD extends ValueType implements ZDD {
     @Override
     public ZDD extend(ZDD other) {
         if (other == ZERO_ZDD) {
-            return ZERO_ZDD;
+            return this;
         }
         if (other == ONE_ZDD) {
             return this;
         }
         int comparison = variable.compareTo(other.variable());
         if (comparison == 0) { // both contain the variable to we need to union each side
-            return zddFactory.createZDD(variable, thenZdd.extend(other.thenZDD()), elseZdd.extend(other.elseZDD()));
+            return zddFactory.createZDD(variable, other.thenZDD().extend(thenZdd), other.elseZDD().extend(elseZdd));
         } else if (comparison < 0) {
             return zddFactory.createZDD(variable, thenZdd.extend(other), elseZdd.extend(other)); // other does not contain this.variable so we only need to union the else side
         } else { // comparison > 0
-            return zddFactory.createZDD(other.variable(), extend(other.thenZDD()), extend(other.elseZDD())); // this does not contain other.variable so we only need to union the else side
+            return zddFactory.createZDD(other.variable(), other.thenZDD().extend(this), other.elseZDD().extend(this)); // this does not contain other.variable so we only need to union the else side
         }
     }
 
