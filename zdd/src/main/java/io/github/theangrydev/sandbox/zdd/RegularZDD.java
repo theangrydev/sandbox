@@ -56,10 +56,7 @@ public class RegularZDD extends ValueType implements ZDD {
 
     @Override
     public ZDD extend(ZDD other) {
-        if (other == ZERO_ZDD) {
-            return this;
-        }
-        if (other == ONE_ZDD) {
+        if (other == ZERO_ZDD || other == ONE_ZDD) {
             return this;
         }
         int comparison = variable.compareTo(other.variable());
