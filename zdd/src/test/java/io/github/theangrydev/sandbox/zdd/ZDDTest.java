@@ -373,28 +373,4 @@ public class ZDDTest implements WithAssertions {
     private ZDD setOf(ZDDVariable... variables) {
         return zddFactory.setOf(variables);
     }
-
-    //TODO: think about ( ( (F |_| A_ALL) |-| T) |-| F_ALL ) \ F_ALL)
-    // where:
-    // F = frontier
-    // A = after
-    // T = transition
-    // A_ALL = all afters
-    // F_ALL = all frontiers
-
-//        ZDDVariable from1 = ZDDVariable.newVariable(0);
-//        ZDDVariable from2 = ZDDVariable.newVariable(1);
-//        ZDDVariable to = ZDDVariable.newVariable(2);
-//        ZDDVariable character = ZDDVariable.newVariable(3);
-//
-//        ZDD frontier = RegularZDD.setOf(from1, from2, character);
-//        ZDD transitions = RegularZDD.setOf(from2, character, to);
-//        ZDD fromAndChar = RegularZDD.setOf(from1, from2, character);
-//
-//        ZDD relativeProduct = frontier.relativeProduct(transitions, fromAndChar);
-//
-//        assertThat(relativeProduct.contains(from1)).isFalse();
-//        assertThat(relativeProduct.contains(from2)).isFalse();
-//        assertThat(relativeProduct.contains(to)).isTrue();
-//    }
 }
