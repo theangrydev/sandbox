@@ -131,7 +131,7 @@ public class RegularZDD extends ValueType implements ZDD {
         } else if (comparison < 0) {
             return createZDD(variable, thenZdd.retainOverlapping(other), elseZdd.retainOverlapping(other));
         } else {
-            return retainOverlapping(other.elseZDD());
+            return retainOverlapping(other.thenZDD()).retainOverlapping(other.elseZDD());
         }
     }
 
@@ -142,12 +142,20 @@ public class RegularZDD extends ValueType implements ZDD {
         }
         int comparison = compareTopVariable(other);
         if (comparison == 0) {
-            return thenZdd.removeAllElementsIn(other).union(elseZdd.removeAllElementsIn(other));
+            return removeThis(other);
         } else if (comparison < 0) {
-            return createZDD(variable, thenZdd.removeAllElementsIn(other), elseZdd.removeAllElementsIn(other));
-        } else { // comparison > 0
+            return removeAllElementsInOtherFromBothSidesOfThis(other);
+        } else {
             return removeAllElementsIn(other.thenZDD()).removeAllElementsIn(other.elseZDD());
         }
+    }
+
+    private ZDD removeThis(ZDD other) {
+        return thenZdd.removeAllElementsIn(other).union(elseZdd.removeAllElementsIn(other));
+    }
+
+    private ZDD removeAllElementsInOtherFromBothSidesOfThis(ZDD other) {
+        return createZDD(variable, thenZdd.removeAllElementsIn(other), elseZdd.removeAllElementsIn(other));
     }
 
     @Override
@@ -176,40 +184,40 @@ public class RegularZDD extends ValueType implements ZDD {
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append('{');
-        appendThenAndElseSets(new StringBuilder(), stringBuilder);
-        stringBuilder.append('}');
-        return stringBuilder.toString();
+        StringBuilder toString = new StringBuilder();
+        toString.append('{');
+        appendThenAndElseSets(new StringBuilder(), toString);
+        toString.append('}');
+        return toString.toString();
     }
 
     @Override
-    public void appendSets(StringBuilder prefix, StringBuilder stringBuilder) {
-        stringBuilder.append(',');
-        appendThenAndElseSets(prefix, stringBuilder);
+    public void appendSets(StringBuilder prefix, StringBuilder toString) {
+        toString.append(',');
+        appendThenAndElseSets(prefix, toString);
     }
 
-    private void appendThenAndElseSets(StringBuilder prefix, StringBuilder stringBuilder) {
-        appendThenSet(prefix, stringBuilder);
-        appendElseSets(prefix, stringBuilder);
+    private void appendThenAndElseSets(StringBuilder prefix, StringBuilder toString) {
+        appendThenSet(prefix, toString);
+        appendElseSets(prefix, toString);
     }
 
-    private void appendThenSet(StringBuilder prefix, StringBuilder stringBuilder) {
-        stringBuilder.append('{');
-        stringBuilder.append(prefix);
+    private void appendThenSet(StringBuilder prefix, StringBuilder toString) {
+        toString.append('{');
+        toString.append(prefix);
         ZDD current = this;
         while (current != ONE_ZDD) {
-            stringBuilder.append(current.variable().toString());
-            stringBuilder.append(',');
+            toString.append(current.variable().toString());
+            toString.append(',');
             current = current.thenZDD();
         }
-        stringBuilder.setCharAt(stringBuilder.length() - 1, '}');
+        toString.setCharAt(toString.length() - 1, '}');
     }
 
-    private void appendElseSets(StringBuilder prefix, StringBuilder stringBuilder) {
+    private void appendElseSets(StringBuilder prefix, StringBuilder toString) {
         ZDD current = this;
         while (current != ONE_ZDD) {
-            current.elseZDD().appendSets(new StringBuilder(prefix), stringBuilder);
+            current.elseZDD().appendSets(new StringBuilder(prefix), toString);
             prefix.append(current.variable().toString());
             prefix.append(',');
             current = current.thenZDD();
