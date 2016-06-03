@@ -104,7 +104,7 @@ public class RegularZDD extends ValueType implements ZDD {
             return intersectMatchingSides(other);
         } else if (comparison < 0) {
             return elseZdd.intersection(other);
-        } else { // comparison > 0
+        } else {
             return intersection(other.elseZDD());
         }
     }
