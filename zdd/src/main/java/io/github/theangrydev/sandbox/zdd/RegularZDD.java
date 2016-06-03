@@ -123,16 +123,16 @@ public class RegularZDD extends ValueType implements ZDD {
         }
         int comparison = compareTopVariable(other);
         if (comparison == 0) {
-            ZDD thenFilterThen = thenZdd.retainOverlapping(other.thenZDD());
-            ZDD thenFilterElse = thenZdd.retainOverlapping(other.elseZDD());
-            ZDD elseBranch = elseZdd.retainOverlapping(other.elseZDD());
-            ZDD thenBranch = thenFilterThen.union(thenFilterElse);
-            return createZDD(variable, thenBranch, elseBranch);
+            return retainOverlappingWithElseBranch(other);
         } else if (comparison < 0) {
             return retainOverlappingWithOtherInBothSides(other);
         } else {
             return retainOverlapping(other.thenZDD()).retainOverlapping(other.elseZDD());
         }
+    }
+
+    private ZDD retainOverlappingWithElseBranch(ZDD other) {
+        return createZDD(variable, thenZdd, elseZdd.retainOverlapping(other.elseZDD()));
     }
 
     private ZDD retainOverlappingWithOtherInBothSides(ZDD other) {
