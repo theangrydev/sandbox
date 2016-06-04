@@ -19,7 +19,7 @@ public class WeakSet<Key> {
     }
 
     public Key putIfAbsent(Key key) {
-        purgeStaleKeys(); //TODO: could do this periodically
+        purgeStaleKeys();
         WeakKey<Key> unique = cache.get(new WeakKey<>(key, referenceQueue));
         Key uniqueKey = unique.get();
         if (uniqueKey != null) {
