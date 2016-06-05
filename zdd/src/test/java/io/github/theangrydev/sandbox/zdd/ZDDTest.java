@@ -8,7 +8,7 @@ import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
 
 public class ZDDTest implements WithAssertions {
 
-    private final ZDDFactory zddFactory = new ZDDFactory(1000);
+    private final ZDDFactory zddFactory = new ZDDFactory();
 
     @Test
     public void withOneVariableContainsThatVariable() {

@@ -10,7 +10,7 @@ public class ZDDFactoryTest implements WithAssertions {
 
     @Test
     public void createZDDWithZeroThenReturnsElse() {
-        ZDDFactory zddFactory = new ZDDFactory(0, Runnable::run);
+        ZDDFactory zddFactory = new ZDDFactory();
 
         ZDD elseZDD = zddFactory.createZDD(ZDDVariable.newVariable(0), ONE_ZDD, ZERO_ZDD);
         ZDD thenZDD = ZERO_ZDD;
@@ -22,7 +22,7 @@ public class ZDDFactoryTest implements WithAssertions {
 
     @Test
     public void createZDDThatHasAlreadyBeenCreatedReturnsSameZDD() {
-        ZDDFactory zddFactory = new ZDDFactory(1, Runnable::run);
+        ZDDFactory zddFactory = new ZDDFactory();
 
         ZDDVariable variable = ZDDVariable.newVariable(0);
         ZDD thenZDD = ONE_ZDD;
@@ -35,18 +35,19 @@ public class ZDDFactoryTest implements WithAssertions {
     }
 
     @Test
-    public void createZDDThatHasAlreadyBeenCreatedReturnsNewZDDIfCacheSizeIsReachedAndAnotherEntryIsMorePopular() {
-        ZDDFactory zddFactory = new ZDDFactory(0, Runnable::run);
+    public void createZDDThatHasAlreadyBeenCreatedReturnsNewZDDIfOldOneHasBeenGarbageCollected() {
+        ZDDFactory zddFactory = new ZDDFactory();
 
         ZDDVariable variable = ZDDVariable.newVariable(0);
         ZDD thenZDD = ONE_ZDD;
         ZDD elseZDD = ZERO_ZDD;
 
-        ZDD original = zddFactory.createZDD(variable, thenZDD, elseZDD);
-        zddFactory.createZDD(ZDDVariable.newVariable(1), thenZDD, elseZDD);
-        zddFactory.createZDD(ZDDVariable.newVariable(1), thenZDD, elseZDD);
+        int originalHash = System.identityHashCode(zddFactory.createZDD(variable, thenZDD, elseZDD));
+
+        System.gc();
+
         ZDD laterOn = zddFactory.createZDD(variable, thenZDD, elseZDD);
 
-        assertThat(original).isNotSameAs(laterOn);
+        assertThat(System.identityHashCode(laterOn)).isNotEqualTo(originalHash);
     }
 }
