@@ -2,24 +2,14 @@ package io.github.theangrydev.sandbox.zdd;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import org.assertj.core.util.VisibleForTesting;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
 
 public class ZDDUnion {
 
     private final LoadingCache<ZDDPair, ZDD> unions;
 
-    public ZDDUnion(int maximumSize) {
-        this(maximumSize, ForkJoinPool.commonPool());
-    }
-
-    @VisibleForTesting
-    ZDDUnion(int maximumSize, Executor executor) {
+    public ZDDUnion() {
         unions = Caffeine.newBuilder()
-                .executor(executor)
-                .maximumSize(maximumSize)
+                .softValues()
                 .build(zddPair -> zddPair.left.union(zddPair.right));
     }
 

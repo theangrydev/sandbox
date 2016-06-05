@@ -5,7 +5,6 @@ import org.junit.Test;
 
 public class ExampleTest implements WithAssertions {
 
-    private final ZDDUnion zddUnion = new ZDDUnion(1000);
     private final ZDDFactory zddFactory = new ZDDFactory();
 
     @Test
