@@ -7,13 +7,13 @@ import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
 
 public class RegularZDD extends ValueType implements ZDD {
 
-    private final ZDDFactory zddFactory;
+    private final ZDDBase zddBase;
     private final ZDDVariable variable;
     private final ZDD thenZdd;
     private final ZDD elseZdd;
 
-    RegularZDD(ZDDFactory zddFactory, ZDDVariable variable, ZDD thenZdd, ZDD elseZdd) {
-        this.zddFactory = zddFactory;
+    RegularZDD(ZDDBase zddBase, ZDDVariable variable, ZDD thenZdd, ZDD elseZdd) {
+        this.zddBase = zddBase;
         this.variable = variable;
         this.thenZdd = thenZdd;
         this.elseZdd = elseZdd;
@@ -229,7 +229,7 @@ public class RegularZDD extends ValueType implements ZDD {
     }
 
     private ZDD createZDD(ZDDVariable variable, ZDD thenZDD, ZDD elseZDD) {
-        return zddFactory.createZDD(variable, thenZDD, elseZDD);
+        return zddBase.createZDD(variable, thenZDD, elseZDD);
     }
 
     private int compareTopVariable(ZDD other) {

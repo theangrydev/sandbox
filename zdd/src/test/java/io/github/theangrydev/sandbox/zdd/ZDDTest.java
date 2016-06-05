@@ -8,7 +8,7 @@ import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
 
 public class ZDDTest implements WithAssertions {
 
-    private final ZDDFactory zddFactory = new ZDDFactory();
+    private final ZDDBase zddBase = new ZDDBase();
 
     @Test
     public void withOneVariableContainsThatVariable() {
@@ -371,6 +371,6 @@ public class ZDDTest implements WithAssertions {
     }
 
     private ZDD setOf(ZDDVariable... variables) {
-        return zddFactory.setOf(variables);
+        return zddBase.setOf(variables);
     }
 }

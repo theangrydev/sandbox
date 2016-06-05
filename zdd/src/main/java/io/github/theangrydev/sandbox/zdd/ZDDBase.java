@@ -9,7 +9,7 @@ import java.util.Comparator;
 import static io.github.theangrydev.sandbox.zdd.OneZDD.ONE_ZDD;
 import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
 
-public class ZDDFactory {
+public class ZDDBase {
 
     private final Interner<ZDD> zdds = Interners.newWeakInterner();
 
