@@ -5,12 +5,10 @@ import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import static io.github.theangrydev.sandbox.zdd.OneZDD.ONE_ZDD;
 import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.mock;
 
 public class ZDDBaseTest implements WithAssertions {
 
@@ -61,10 +59,10 @@ public class ZDDBaseTest implements WithAssertions {
     @Test
     public void unionIsCached() {
         ZDDBase zddBase = new ZDDBase();
-        ZDD left = mock(ZDD.class);
+        RegularZDD left = mock(RegularZDD.class);
         ZDD right = mock(ZDD.class);
         ZDD union = mock(ZDD.class);
-        when(left.union(right)).thenReturn(union);
+        when(left.computeUnion(right)).thenReturn(union);
 
         ZDD firstUnion = zddBase.union(left, right);
         ZDD secondUnion = zddBase.union(left, right);
@@ -72,7 +70,7 @@ public class ZDDBaseTest implements WithAssertions {
         assertThat(firstUnion).isSameAs(union);
         assertThat(secondUnion).isSameAs(union);
 
-        verify(left).union(right);
+        verify(left).computeUnion(right);
         verifyNoMoreInteractions(left, right);
     }
 
@@ -87,7 +85,7 @@ public class ZDDBaseTest implements WithAssertions {
         zddBase.union(left, right);
         assertThat(left.unionCount).isEqualTo(1);
 
-        left.union = new RegularZDD(null, ZDDVariable.newVariable(1), OneZDD.ONE_ZDD, OneZDD.ONE_ZDD);;
+        left.union = new RegularZDD(null, ZDDVariable.newVariable(1), OneZDD.ONE_ZDD, OneZDD.ONE_ZDD);
 
         forceSoftReferencesToBeCleared();
 
@@ -107,65 +105,34 @@ public class ZDDBaseTest implements WithAssertions {
         }
     }
 
-    private static class ZDDWithFixedUnion implements ZDD {
+    private static class ZDDWithFixedUnion extends RegularZDD {
 
         private RegularZDD union = new RegularZDD(null, ZDDVariable.newVariable(1), OneZDD.ONE_ZDD, OneZDD.ONE_ZDD);
         private int unionCount = 0;
 
-        @Override
-        public ZDDVariable variable() {
-            return null;
+        ZDDWithFixedUnion() {
+            super(null, null, null, null);
         }
 
         @Override
-        public ZDD thenZDD() {
-            return null;
-        }
-
-        @Override
-        public ZDD elseZDD() {
-            return null;
-        }
-
-        @Override
-        public ZDD union(ZDD zdd) {
+        public ZDD computeUnion(ZDD zdd) {
             unionCount++;
             return union;
         }
 
         @Override
-        public ZDD intersection(ZDD zdd) {
-            return null;
+        public String toString() {
+            return getClass().getSimpleName() + "@" + hashCode();
         }
 
         @Override
-        public ZDD extend(ZDD zdd) {
-            return null;
+        public int hashCode() {
+            return System.identityHashCode(this);
         }
 
         @Override
-        public ZDD retainOverlapping(ZDD zdd) {
-            return null;
-        }
-
-        @Override
-        public ZDD removeAllElementsIn(ZDD zdd) {
-            return null;
-        }
-
-        @Override
-        public boolean contains(ZDD zdd) {
-            return false;
-        }
-
-        @Override
-        public Optional<ZDDVariable> directAssignment() {
-            return null;
-        }
-
-        @Override
-        public void appendSets(StringBuilder prefix, StringBuilder stringBuilder) {
-
+        public boolean equals(Object object) {
+            return this == object;
         }
     }
 }

@@ -42,6 +42,10 @@ public class RegularZDD extends ValueType implements ZDD {
         if (other == ONE_ZDD) {
             return createZDD(variable, ONE_ZDD, ONE_ZDD);
         }
+        return zddBase.union(this, other);
+    }
+
+    ZDD computeUnion(ZDD other) {
         int comparison = compareTopVariable(other);
         if (comparison == 0) {
             return unionMatchingSides(other);
@@ -234,5 +238,11 @@ public class RegularZDD extends ValueType implements ZDD {
 
     private int compareTopVariable(ZDD other) {
         return variable.compareTo(other.variable());
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        zddBase.decrementActiveZDDs();
+        super.finalize();
     }
 }
