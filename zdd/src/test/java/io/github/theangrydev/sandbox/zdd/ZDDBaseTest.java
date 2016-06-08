@@ -3,14 +3,24 @@ package io.github.theangrydev.sandbox.zdd;
 import org.assertj.core.api.WithAssertions;
 import org.junit.Test;
 
+import javax.management.ListenerNotFoundException;
+import javax.management.Notification;
+import javax.management.NotificationEmitter;
+import javax.management.NotificationListener;
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import static io.github.theangrydev.sandbox.zdd.OneZDD.ONE_ZDD;
 import static io.github.theangrydev.sandbox.zdd.ZeroZDD.ZERO_ZDD;
+import static java.lang.String.format;
 import static org.mockito.Mockito.*;
 
 public class ZDDBaseTest implements WithAssertions {
+
+    public static final int MEMORY_HOG_CHUNK = 102400;
 
     @Test
     public void createZDDWithZeroThenReturnsElse() {
@@ -75,64 +85,67 @@ public class ZDDBaseTest implements WithAssertions {
     }
 
     @Test
-    public void cacheIsClearedWhenSoftReferencesAreFreed() throws InterruptedException {
+    public void cacheIsClearedWhenMemoryIsTight() throws InterruptedException {
         ZDDBase zddBase = new ZDDBase();
 
-        ZDDWithFixedUnion left = new ZDDWithFixedUnion();
+        RegularZDD left = mock(RegularZDD.class);
         ZDD right = mock(ZDD.class);
+        when(left.computeUnion(right)).thenReturn(mock(ZDD.class));
 
         zddBase.union(left, right);
         zddBase.union(left, right);
-        assertThat(left.unionCount).isEqualTo(1);
+        verify(left).computeUnion(right);
 
-        left.union = new RegularZDD(null, ZDDVariable.newVariable(1), OneZDD.ONE_ZDD, OneZDD.ONE_ZDD);
-
-        forceSoftReferencesToBeCleared();
+        forceVeryLowHeapSpace();
 
         zddBase.union(left, right);
-        zddBase.union(left, right);
-        assertThat(left.unionCount).isEqualTo(2);
+        verify(left, times(2)).computeUnion(right);
     }
 
-    private void forceSoftReferencesToBeCleared() {
+    private void forceVeryLowHeapSpace() throws InterruptedException {
+        CountDownLatch waitForGarbageCollection = new CountDownLatch(1);
+        List<long[]> memoryHog = forceMostMemoryToBeUsedUp();
+        NotificationListener garbageCollectionListener = new NotificationListener() {
+            @Override
+            public void handleNotification(Notification notification, Object handback) {
+                removeGarbageCollectionListener(this);
+                waitForGarbageCollection.countDown();
+                System.out.println("Noticed a GC");
+            }
+        };
+        addGarbageCollectionListener(garbageCollectionListener);
+        System.out.println(format("Memory hog is %d longs", + memoryHog.size() * MEMORY_HOG_CHUNK));
+
+        waitForGarbageCollection.await();
+        System.out.println("Garbage collection assumed to have taken place now");
+    }
+
+    private void addGarbageCollectionListener(NotificationListener garbageCollectionListener) {
+        for (GarbageCollectorMXBean garbageCollectorMXBean : ManagementFactory.getGarbageCollectorMXBeans()) {
+            NotificationEmitter emitter = (NotificationEmitter) garbageCollectorMXBean;
+            emitter.addNotificationListener(garbageCollectionListener, null, null);
+        }
+    }
+
+    private void removeGarbageCollectionListener(NotificationListener garbageCollectionListener) {
+        for (GarbageCollectorMXBean garbageCollectorMXBean : ManagementFactory.getGarbageCollectorMXBeans()) {
+            NotificationEmitter emitter = (NotificationEmitter) garbageCollectorMXBean;
+            try {
+                emitter.removeNotificationListener(garbageCollectionListener);
+            } catch (ListenerNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private List<long[]> forceMostMemoryToBeUsedUp() {
+        List<long[]> memoryHog = new LinkedList<>();
         try {
-            List<long[]> memoryHog = new LinkedList<>();
             while (true) {
-                memoryHog.add(new long[102400]);
+                memoryHog.add(new long[MEMORY_HOG_CHUNK]);
             }
         } catch (OutOfMemoryError outOfMemoryError) {
-            System.out.println("Out of memory error produced; the GC must have cleared all the soft references by now!");
-        }
-    }
-
-    private static class ZDDWithFixedUnion extends RegularZDD {
-
-        private RegularZDD union = new RegularZDD(null, ZDDVariable.newVariable(1), OneZDD.ONE_ZDD, OneZDD.ONE_ZDD);
-        private int unionCount = 0;
-
-        ZDDWithFixedUnion() {
-            super(null, null, null, null);
-        }
-
-        @Override
-        public ZDD computeUnion(ZDD zdd) {
-            unionCount++;
-            return union;
-        }
-
-        @Override
-        public String toString() {
-            return getClass().getSimpleName() + "@" + hashCode();
-        }
-
-        @Override
-        public int hashCode() {
-            return System.identityHashCode(this);
-        }
-
-        @Override
-        public boolean equals(Object object) {
-            return this == object;
+            System.out.println("Out of memory error produced; the GC must have been run by now");
+            return memoryHog;
         }
     }
 }

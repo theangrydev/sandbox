@@ -239,10 +239,4 @@ public class RegularZDD extends ValueType implements ZDD {
     private int compareTopVariable(ZDD other) {
         return variable.compareTo(other.variable());
     }
-
-    @Override
-    protected void finalize() throws Throwable {
-        zddBase.decrementActiveZDDs();
-        super.finalize();
-    }
 }

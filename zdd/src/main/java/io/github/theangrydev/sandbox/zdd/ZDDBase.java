@@ -1,17 +1,18 @@
 package io.github.theangrydev.sandbox.zdd;
 
-import com.github.benmanes.caffeine.cache.*;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Policy;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 
-import javax.management.Notification;
 import javax.management.NotificationEmitter;
 import javax.management.NotificationListener;
+import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
@@ -23,48 +24,44 @@ public class ZDDBase {
 
     private static final Function<ZDDPair, ZDD> COMPUTE_UNION = zddPair -> zddPair.left.computeUnion(zddPair.right);
 
-    private static final long MEMORY_PER_UNION = 2; //TODO: upper bound for this at runtime
-    private static final long MEMORY_PER_REGULAR_ZDD = 32; //TODO: upper bound for this at runtime
-
-    private final long targetMemoryUsage = 1024L * 1L + 198976 + 2; //TODO: don't really like this, ideally would just respond to memory demand. could
-
-    private final Lock memoryLock = new ReentrantLock();
-
-    private final AtomicLong activeZDDs;
     private final Interner<ZDD> zdds = Interners.newWeakInterner();
-    private long activeZDDThreshold;
 
     private final LoadingCache<ZDDPair, ZDD> unions;
     private final Policy.Eviction<ZDDPair, ZDD> unionPolicy;
 
-    private final AtomicLong operationCount = new AtomicLong(0);
-    private long cacheAlgorithmThreshold;
+    private final Lock memoryLock = new ReentrantLock();
+    private final LongAdder operationCount = new LongAdder();
+    private volatile long cacheAlgorithmThreshold;
 
-    private double previousCacheHitRate = 0.0d;
+    private static final Runtime RUNTIME = Runtime.getRuntime();
 
     public ZDDBase() {
-        //TODO: listen to GCs and if the free heap space is less than some threshold, shrink the cache
-//        MemoryMXBean mbean = ManagementFactory.getMemoryMXBean();
-//        NotificationEmitter emitter = (NotificationEmitter) mbean;
-//        emitter.addNotificationListener(new NotificationListener() {
-//            @Override
-//            public void handleNotification(Notification notification, Object handback) {
-//                System.out.println("notification = " + notification);
-//            }
-//        }, null, null);
-
-//        ManagementFactory.getMemoryPoolMXBeans().stream().filter(bean -> bean.getName())
         unions = Caffeine.newBuilder()
                 .maximumSize(100_000)
                 .buildAsync(this::neverUse)
                 .synchronous();
         unionPolicy = unions.policy().eviction().orElseThrow(() -> new IllegalStateException("Cache should have a maximum size policy"));
-        activeZDDs = new AtomicLong(0);
         cacheAlgorithmThreshold = unionPolicy.getMaximum();
-        updateActiveZDDThreshold();
+
+        NotificationListener garbageCollectionListener = (notification, handback) -> {
+            long usedMemory = RUNTIME.totalMemory() - RUNTIME.freeMemory();
+            long maxMemory = RUNTIME.maxMemory();
+            long freeMemory = maxMemory - usedMemory;
+            double percentageFree = (double) freeMemory / (double) maxMemory;
+            if (percentageFree < 0.1) {
+                unionPolicy.setMaximum(0); //TODO: determine new size based on estimated size (half?)
+                unions.invalidateAll(); //TODO: reduce rather than invalidate
+                System.out.println(String.format("Free memory is at %.2f%% (%d / %d)", percentageFree, freeMemory, maxMemory));
+            }
+        };
+
+        for (GarbageCollectorMXBean garbageCollectorMXBean : ManagementFactory.getGarbageCollectorMXBeans()) {
+            NotificationEmitter emitter = (NotificationEmitter) garbageCollectorMXBean;
+            emitter.addNotificationListener(garbageCollectionListener, null, null);
+        }
     }
 
-    private ZDD neverUse(ZDDPair ignored) {
+    private ZDD neverUse(ZDDPair ignorejd) {
         throw new IllegalStateException("Never use the loader");
     }
 
@@ -74,23 +71,14 @@ public class ZDDBase {
     }
 
     private void maintainCache() {
-        if (operationCount.incrementAndGet() >= cacheAlgorithmThreshold && memoryLock.tryLock()) {
+        if (operationCount.longValue() >= cacheAlgorithmThreshold && memoryLock.tryLock()) {
             try {
-                double currentCacheHitRate = unions.stats().hitRate();
-                if (currentCacheHitRate > previousCacheHitRate || unionPolicy.getMaximum() < activeZDDs.get() * currentCacheHitRate) {
-                    unionPolicy.setMaximum(unionPolicy.getMaximum() * 2); // TODO: clamp to minimum working memory
-                    updateActiveZDDThreshold();
-                }
-                previousCacheHitRate = currentCacheHitRate;
-                cacheAlgorithmThreshold *= 2;
+                unionPolicy.setMaximum(unionPolicy.getMaximum() * 2); // TODO: clamp to minimum working memory
+//                cacheAlgorithmThreshold = Runtime.getRuntime().freeMemory(); //TODO: update based on free memory
             } finally {
                 memoryLock.unlock();
             }
         }
-    }
-
-    public void decrementActiveZDDs() {
-        activeZDDs.decrementAndGet();
     }
 
     private static class ZDDPair extends ValueType {
@@ -111,28 +99,18 @@ public class ZDDBase {
     }
 
     private ZDD internZDD(ZDDVariable variable, ZDD thenZdd, ZDD elseZdd) {
-        RegularZDD newZDD = new RegularZDD(this, variable, thenZdd, elseZdd);
-        ZDD returnedZDD = zdds.intern(newZDD);
-        if (newZDD == returnedZDD) {
-            activeZDDs.incrementAndGet();
-            shrinkCachesIfMemoryUsageIsTooHigh();
-        }
-        return returnedZDD;
+        return zdds.intern(new RegularZDD(this, variable, thenZdd, elseZdd));
     }
 
+    //TODO: use this in gc listener and look at RUNTIME memory
     private void shrinkCachesIfMemoryUsageIsTooHigh() {
-        if (activeZDDs.intValue() >= activeZDDThreshold && memoryLock.tryLock()) {
+        if (memoryLock.tryLock()) {
             try {
                 unionPolicy.setMaximum(unionPolicy.getMaximum() / 2);
-                updateActiveZDDThreshold();
             } finally {
                 memoryLock.unlock();
             }
         }
-    }
-
-    private void updateActiveZDDThreshold() {
-        activeZDDThreshold = targetMemoryUsage - unionPolicy.getMaximum() * MEMORY_PER_UNION - activeZDDs.intValue() * MEMORY_PER_REGULAR_ZDD;
     }
 
     public ZDD setOf(ZDDVariable... zddVariables) {
