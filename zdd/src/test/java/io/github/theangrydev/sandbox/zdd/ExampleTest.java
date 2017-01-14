@@ -23,14 +23,14 @@ public class ExampleTest implements WithAssertions {
         ZDD fromToTransitionTable = zddBase.setOf(fromA, charAB, toB).union(zddBase.setOf(fromB, charBC, toC)); // {{fromA, charAB, toB}, {fromB, charBC, toC}}
         ZDD toFromTransitionTable = zddBase.setOf(toA, charAB, fromB).union(zddBase.setOf(toB, charBC, fromC)); // {{toA, charAB, fromB}, {toB, charBC, fromC}}
 
-        ZDD frontier = zddBase.setOf(fromA); // {{fromA}}
-        ZDD frontierWithTransition = frontier.extend(zddBase.setOf(charAB)); // {{fromA, charAB}}
-        ZDD frontierApplicableTransition = fromToTransitionTable.retainOverlapping(frontierWithTransition); // {{fromA, charAB, toB}}
+        ZDD initialFrontier = zddBase.setOf(fromA); // {{fromA}}
 
+        ZDD frontierWithTransition = initialFrontier.extend(zddBase.setOf(charAB)); // {{fromA, charAB}}
+        ZDD frontierApplicableTransition = fromToTransitionTable.retainOverlapping(frontierWithTransition); // {{fromA, charAB, toB}}
         ZDD nextFrontier = frontierApplicableTransition.removeAllElementsIn(fromAndCharacters); // {{toB}}
+
         ZDD nextFrontierWithTransition = nextFrontier.extend(zddBase.setOf(charBC)); // {{toB, charBC}
         ZDD nextFrontierApplicableTransition = toFromTransitionTable.retainOverlapping(nextFrontierWithTransition); // {{toB, charBC, fromC}}
-
         ZDD finalFrontier = nextFrontierApplicableTransition.removeAllElementsIn(toAndCharacters); // {{fromC}}
 
         assertThat(finalFrontier.directAssignment()).contains(fromC);
